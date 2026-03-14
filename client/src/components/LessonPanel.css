@@ -1,0 +1,125 @@
+.lesson-panel {
+  padding: 32px;
+  max-width: 800px;
+}
+
+.lesson-header {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lesson-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.lesson-section {
+  margin-bottom: 32px;
+}
+
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.lesson-summary {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.concepts-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.concept-chip {
+  padding: 6px 14px;
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.lesson-explanation {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lesson-explanation p {
+  font-size: 0.97rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.examples-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.example-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.example-num {
+  min-width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.example-item p { font-size: 0.9rem; line-height: 1.6; }
+
+.lesson-quiz-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(79, 70, 229, 0.1));
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-lg);
+  margin-top: 8px;
+}
+
+.quiz-cta-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.quiz-cta-icon { font-size: 2rem; }
+
+.quiz-cta-info h4 { color: var(--text-primary); margin-bottom: 2px; }
+.quiz-cta-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+@media (max-width: 600px) {
+  .lesson-panel { padding: 20px 16px; }
+  .lesson-quiz-cta { flex-direction: column; align-items: flex-start; }
+}

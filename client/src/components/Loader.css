@@ -1,0 +1,64 @@
+.loader-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px;
+}
+
+.loader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.loader-card h3 {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-top: 8px;
+}
+
+.loader-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.loader-steps {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.loader-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.loader-step.active {
+  color: var(--accent-light);
+  border-color: var(--border-focus);
+  background: var(--accent-dim);
+}
+
+.loader-step.done {
+  color: var(--success);
+  border-color: var(--success-dim);
+}
+
+.loader-step-icon { font-size: 1rem; }

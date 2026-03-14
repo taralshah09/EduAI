@@ -1,0 +1,289 @@
+.course-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.course-layout-v2 {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr 380px;
+  margin-top: 80px; /* Offset for fixed navbar */
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* Common Column Styles */
+.col-left, .col-middle, .col-right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.col-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+/* ===================== LEFT COLUMN ===================== */
+.col-left {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+}
+
+.video-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 8px;
+  color: var(--text-primary);
+}
+
+.concepts-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.concepts-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-top: 12px;
+}
+
+.concept-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  transition: all var(--transition);
+}
+
+.concept-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+  transform: translateX(4px);
+}
+
+.concept-card-icon {
+  font-size: 1.2rem;
+}
+
+.concept-card-content h5 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.concept-card-content p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sidebar-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.mini-lesson-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mini-nav-item {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.mini-nav-item:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.mini-nav-item.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+/* ===================== MIDDLE COLUMN ===================== */
+.col-middle {
+  background: var(--bg-primary);
+}
+
+.col-middle-scroll {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.lesson-content-v2 {
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+
+.lesson-content-header {
+  margin-bottom: 32px;
+}
+
+.lesson-num-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.lesson-title-v2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.scrollable-concept-content {
+  margin-bottom: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.explanation-text p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.examples-section-v2 {
+  margin-bottom: 40px;
+}
+
+.examples-list-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.example-card {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  align-items: flex-start;
+}
+
+.example-badge {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.quiz-cta-v2 {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+/* ===================== RIGHT COLUMN ===================== */
+.col-right {
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+}
+
+.ai-tutor-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.chat-scroll-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Override ChatWidget internal styles to fit this container */
+.chat-scroll-container .chat-widget {
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.chat-scroll-container .chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.chat-scroll-container .chat-input-area {
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width: 1366px) {
+  .course-layout-v2 { grid-template-columns: 280px 1fr 340px; }
+}
+
+@media (max-width: 1100px) {
+  .course-layout-v2 { grid-template-columns: 1fr; }
+  .col-left, .col-right { display: none; }
+}
+
+/* Section Labels */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: block;
+}
+

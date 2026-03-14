@@ -1,0 +1,85 @@
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 40px 60px;
+  background-color: var(--bg-primary);
+  margin-top: 80px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+}
+
+.dashboard-header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.dashboard-header p {
+  color: var(--text-secondary);
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+/* For CourseCard - ensuring it looks premium */
+.course-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all var(--transition);
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-accent);
+}
+
+.processing-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--accent-dim);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-md);
+  margin-bottom: 32px;
+  color: var(--accent-light);
+  font-weight: 500;
+}
+
+.dashboard-empty {
+  text-align: center;
+  padding: 80px 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  max-width: 600px;
+  margin: 80px auto;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content { padding: 40px 24px; }
+  .dashboard-header { flex-direction: column; gap: 24px; align-items: flex-start; }
+}

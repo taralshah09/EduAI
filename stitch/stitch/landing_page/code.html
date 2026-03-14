@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduAI - Transform YouTube into Interactive Courses</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#135bec',
+            darkbg: '#05070a',
+            glass: 'rgba(255, 255, 255, 0.05)',
+            glassBorder: 'rgba(255, 255, 255, 0.1)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          borderRadius: {
+            'twelve': '12px',
+            'twenty': '20px',
+          },
+          animation: {
+            'glow-pulse': 'glow-pulse 3s infinite ease-in-out',
+            'float': 'float 6s infinite ease-in-out',
+          },
+          keyframes: {
+            'glow-pulse': {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(19, 91, 236, 0.4)' },
+              '50%': { boxShadow: '0 0 40px rgba(19, 91, 236, 0.7)' },
+            },
+            'float': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-glassmorphism">
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+    }
+    .gradient-border {
+      position: relative;
+    }
+    .gradient-border::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: 21px;
+      padding: 1px;
+      background: linear-gradient(45deg, #135bec, #a855f7, #ec4899);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .hero-gradient {
+      background: radial-gradient(circle at top center, rgba(19, 91, 236, 0.15) 0%, transparent 70%);
+    }
+    body {
+      background-color: #05070a;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="font-sans">
+<!-- BEGIN: Navigation -->
+<nav class="fixed top-0 w-full z-50 border-b border-white/10 bg-darkbg/80 backdrop-blur-md" data-purpose="main-nav">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 bg-primary rounded-twelve flex items-center justify-center">
+<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<span class="text-2xl font-extrabold tracking-tight">EduAI</span>
+</div>
+<div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+<a class="hover:text-white transition-colors" href="#">Features</a>
+<a class="hover:text-white transition-colors" href="#">Curriculum</a>
+<a class="hover:text-white transition-colors" href="#">Pricing</a>
+<button class="bg-white text-black px-6 py-2.5 rounded-full font-bold hover:bg-gray-200 transition-all">Sign In</button>
+</div>
+</div>
+</nav>
+<!-- END: Navigation -->
+<main>
+<!-- BEGIN: HeroSection -->
+<section class="relative pt-32 pb-20 md:pt-48 md:pb-32 hero-gradient" data-purpose="hero">
+<div class="max-w-7xl mx-auto px-6 text-center">
+<!-- Floating Elements Decor -->
+<div class="absolute top-40 left-10 hidden lg:block animate-float" style="animation-delay: 0s;">
+<div class="glass-card p-4 w-48 text-left shadow-2xl">
+<div class="text-[10px] text-primary font-bold uppercase mb-2">Quiz Active</div>
+<div class="text-sm font-semibold mb-3">What is Quantum Computing?</div>
+<div class="space-y-1">
+<div class="w-full bg-primary/20 h-2 rounded-full"></div>
+<div class="w-2/3 bg-white/10 h-2 rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="absolute top-60 right-10 hidden lg:block animate-float" style="animation-delay: 1.5s;">
+<div class="glass-card p-4 w-56 text-left shadow-2xl">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-pink-500"></div>
+<span class="text-xs font-medium">Smart AI Tutor</span>
+</div>
+<p class="text-[11px] text-gray-300 italic">"Based on the 5:30 mark of the video, the main concept is..."</p>
+</div>
+</div>
+<h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
+          Turn Any YouTube Video Into an <br class="hidden md:block"/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">
+            Interactive Course
+          </span>
+</h1>
+<p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12">
+          Stop passive watching. EduAI uses advanced artificial intelligence to transform video content into structured lessons, quizzes, and personalized notes instantly.
+        </p>
+<!-- Link Input Area -->
+<div class="max-w-2xl mx-auto relative group" data-purpose="generator-input">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-twenty blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+<div class="relative flex flex-col md:flex-row gap-3 p-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-twenty">
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 px-4 py-3" placeholder="Paste YouTube Video URL here..." type="text"/>
+<button class="bg-primary text-white px-8 py-3 rounded-twenty font-bold shadow-[0_0_20px_rgba(19,91,236,0.4)] hover:shadow-[0_0_35px_rgba(19,91,236,0.6)] transition-all duration-300 animate-glow-pulse">
+              Generate Course
+            </button>
+</div>
+</div>
+<p class="mt-6 text-sm text-gray-500">Try it for free. No credit card required.</p>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: FeaturesSection -->
+<section class="py-24 bg-darkbg" id="features">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center mb-20">
+<h2 class="text-3xl md:text-4xl font-bold mb-4">Learn Faster with AI</h2>
+<p class="text-gray-400">The tools you need to master any subject in record time.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Feature 1 -->
+<div class="glass-card gradient-border p-8 hover:transform hover:-translate-y-2 transition-all duration-300 group" data-purpose="feature-card">
+<div class="w-12 h-12 bg-primary/10 rounded-twelve flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">AI Lessons</h3>
+<p class="text-gray-400 text-sm leading-relaxed">Videos are broken down into logical chapters with summaries and key takeaways automatically generated.</p>
+</div>
+<!-- Feature 2 -->
+<div class="glass-card gradient-border p-8 hover:transform hover:-translate-y-2 transition-all duration-300 group" data-purpose="feature-card">
+<div class="w-12 h-12 bg-purple-500/10 rounded-twelve flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition-colors">
+<svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Interactive Quizzes</h3>
+<p class="text-gray-400 text-sm leading-relaxed">Test your knowledge with dynamic quizzes generated directly from the video content to ensure retention.</p>
+</div>
+<!-- Feature 3 -->
+<div class="glass-card gradient-border p-8 hover:transform hover:-translate-y-2 transition-all duration-300 group" data-purpose="feature-card">
+<div class="w-12 h-12 bg-pink-500/10 rounded-twelve flex items-center justify-center mb-6 group-hover:bg-pink-500/20 transition-colors">
+<svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Smart AI Tutor</h3>
+<p class="text-gray-400 text-sm leading-relaxed">Ask questions about the video anytime. Our AI tutor understands the context and provides instant explanations.</p>
+</div>
+<!-- Feature 4 -->
+<div class="glass-card gradient-border p-8 hover:transform hover:-translate-y-2 transition-all duration-300 group" data-purpose="feature-card">
+<div class="w-12 h-12 bg-blue-400/10 rounded-twelve flex items-center justify-center mb-6 group-hover:bg-blue-400/20 transition-colors">
+<svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-xl font-bold mb-3">Progress Tracking</h3>
+<p class="text-gray-400 text-sm leading-relaxed">Keep track of your learning journey across all videos. Earn certificates as you master new skills.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: FeaturesSection -->
+<!-- BEGIN: SocialProofSection -->
+<section class="py-24 bg-darkbg/50">
+<div class="max-w-7xl mx-auto px-6">
+<h2 class="text-center text-3xl font-bold mb-16">Trusted by 50,000+ Learners</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Testimonial 1 -->
+<div class="glass-card p-8 flex flex-col justify-between" data-purpose="testimonial">
+<p class="text-gray-300 italic mb-6">"I used to spend hours taking notes on YouTube coding tutorials. EduAI does it in seconds and the quizzes actually help me remember."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500"></div>
+<div>
+<div class="font-bold text-sm">Alex Rivera</div>
+<div class="text-xs text-gray-500">CS Student</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 2 -->
+<div class="glass-card p-8 flex flex-col justify-between" data-purpose="testimonial">
+<p class="text-gray-300 italic mb-6">"The AI Tutor is a game changer. If I don't understand a concept, I just ask and it explains it using the video context."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500"></div>
+<div>
+<div class="font-bold text-sm">Sarah Jenkins</div>
+<div class="text-xs text-gray-500">Digital Marketer</div>
+</div>
+</div>
+</div>
+<!-- Testimonial 3 -->
+<div class="glass-card p-8 flex flex-col justify-between" data-purpose="testimonial">
+<p class="text-gray-300 italic mb-6">"Perfect for busy professionals. I can turn a 40-minute webinar into a 5-minute summarized lesson plan effortlessly."</p>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500"></div>
+<div>
+<div class="font-bold text-sm">Marcus Chen</div>
+<div class="text-xs text-gray-500">Product Manager</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: SocialProofSection -->
+<!-- BEGIN: CTASection -->
+<section class="py-32 relative overflow-hidden" data-purpose="cta">
+<!-- Background Glows -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+<h2 class="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight">Ready to Upgrade Your Learning?</h2>
+<p class="text-xl text-gray-400 mb-10">Join thousands of students and professionals who are already learning 10x faster with EduAI.</p>
+<button class="bg-primary hover:bg-primary/90 text-white text-lg px-12 py-5 rounded-twenty font-bold shadow-[0_0_30px_rgba(19,91,236,0.3)] transition-all transform hover:scale-105">
+          Start Learning Smarter
+        </button>
+</div>
+</section>
+<!-- END: CTASection -->
+</main>
+<!-- BEGIN: Footer -->
+<footer class="py-12 border-t border-white/5 bg-darkbg">
+<div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<span class="text-lg font-bold tracking-tight">EduAI</span>
+</div>
+<p class="text-gray-500 text-sm">© 2024 EduAI Inc. All rights reserved.</p>
+<div class="flex gap-6 text-sm text-gray-400">
+<a class="hover:text-white transition-colors" href="#">Twitter</a>
+<a class="hover:text-white transition-colors" href="#">Discord</a>
+<a class="hover:text-white transition-colors" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+<!-- END: Footer -->
+</body></html>
