@@ -22,6 +22,22 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <Link to="/" className="auth-breadcrumb">
+          <svg
+            className="breadcrumb-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
+          Back to Home
+        </Link>
         <h1>Welcome Back</h1>
         <p>Log in to continue your learning journey.</p>
         {error && <div className="error-message">{error}</div>}

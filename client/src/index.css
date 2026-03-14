@@ -260,6 +260,29 @@ p { color: var(--text-secondary); }
   text-align: center;
   box-shadow: var(--shadow-md);
   animation: fadeInUp 0.5s ease;
+  position: relative;
+}
+
+.auth-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+  transition: all var(--transition);
+  align-self: flex-start;
+}
+
+.auth-breadcrumb:hover {
+  color: var(--accent-light);
+  transform: translateX(-4px);
+}
+
+.breadcrumb-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .auth-card h1 {

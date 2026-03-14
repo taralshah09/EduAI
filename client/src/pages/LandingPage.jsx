@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
 import './LandingPage.css'
 
@@ -16,11 +17,15 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const isValidYouTube = (u) => /youtube\.com\/watch|youtu\.be\//.test(u)
 
   const handleGenerate = async (e) => {
     e.preventDefault()
+    if (!user) {
+      return navigate('/login')
+    }
     if (!url.trim()) return setError('Please enter a YouTube URL.')
     if (!isValidYouTube(url)) return setError('Please enter a valid YouTube URL.')
 

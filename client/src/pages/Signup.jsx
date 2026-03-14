@@ -23,6 +23,22 @@ const Signup = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <Link to="/" className="auth-breadcrumb">
+          <svg
+            className="breadcrumb-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
+          Back to Home
+        </Link>
         <h1>Create Account</h1>
         <p>Start your AI-powered learning journey today.</p>
         {error && <div className="error-message">{error}</div>}
