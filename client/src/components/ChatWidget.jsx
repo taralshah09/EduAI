@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 import MarkdownRenderer from './MarkdownRenderer'
 import './ChatWidget.css'
 
@@ -20,7 +20,7 @@ export default function ChatWidget({ courseId }) {
 
   const loadHistory = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:3000/api/chat/${courseId}`)
+      const { data } = await api.get(`/chat/${courseId}`)
       setMessages(data.messages)
     } catch {
       // empty history is fine
@@ -40,7 +40,7 @@ export default function ChatWidget({ courseId }) {
     setLoading(true)
 
     try {
-      const { data } = await axios.post('http://localhost:3000/api/chat', {
+      const { data } = await api.post('/chat', {
         courseId,
         message: text,
       })

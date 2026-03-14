@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../services/api'
 import Navbar from '../components/Navbar'
 import Breadcrumbs from '../components/Breadcrumbs'
 import QuizEngine from '../components/QuizEngine'
@@ -23,7 +23,7 @@ export default function CoursePage() {
 
   const fetchCourse = useCallback(async () => {
     try {
-      const { data } = await axios.get(`http://localhost:3000/api/courses/${id}`)
+      const { data } = await api.get(`/courses/${id}`)
       setCourse(data.course)
       if (data.course.status === 'error') {
         setError(data.course.errorMessage || 'Course generation failed.')

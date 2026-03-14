@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+
 
 // Controllers
 import {
@@ -12,11 +14,19 @@ import {
 } from "./controllers/courseController.js";
 import { chat, getChatHistory } from "./controllers/chatController.js";
 import { submitQuiz } from "./controllers/quizController.js";
+import {
+  registerUser,
+  authUser,
+  getUserProfile,
+  logoutUser,
+} from "./controllers/authController.js";
+import { protect } from "./middlewares/authMiddleware.js";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -34,18 +44,24 @@ mongoose
 // Routes
 app.get("/", (req, res) => res.json({ message: "MiyagiLabs API 🚀" }));
 
+// Auth
+app.post("/api/auth/register", registerUser);
+app.post("/api/auth/login", authUser);
+app.post("/api/auth/logout", logoutUser);
+app.get("/api/auth/profile", protect, getUserProfile);
+
 // Courses
-app.post("/api/courses/generate", generateCourse);
-app.get("/api/courses", getAllCourses);
-app.get("/api/courses/status/:id", getCourseStatus);
-app.get("/api/courses/:id", getCourseById);
+app.post("/api/courses/generate", protect, generateCourse);
+app.get("/api/courses", protect, getAllCourses);
+app.get("/api/courses/status/:id", protect, getCourseStatus);
+app.get("/api/courses/:id", protect, getCourseById);
 
 // Chat
-app.post("/api/chat", chat);
-app.get("/api/chat/:courseId", getChatHistory);
+app.post("/api/chat", protect, chat);
+app.get("/api/chat/:courseId", protect, getChatHistory);
 
 // Quiz
-app.post("/api/quiz/submit", submitQuiz);
+app.post("/api/quiz/submit", protect, submitQuiz);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>

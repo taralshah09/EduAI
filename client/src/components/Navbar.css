@@ -64,6 +64,30 @@
 
 .nav-link:hover, .nav-link.active { color: var(--text-primary); }
 
-@media (max-width: 600px) {
-  .navbar-links { display: none; }
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .navbar-links, .user-name { display: none; }
 }

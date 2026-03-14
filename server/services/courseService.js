@@ -15,16 +15,24 @@ import {
 /**
  * Main pipeline: YouTube URL → structured Course saved in MongoDB
  */
-export async function buildCourse(url) {
+export async function buildCourse(url, userId) {
   const videoId = extractVideoId(url);
   if (!videoId) throw new Error("Invalid YouTube URL");
 
-  // Check if course already exists
-  const existing = await Course.findOne({ videoId });
+  // Check if course already exists for THIS user
+  const existing = await Course.findOne({ videoId, userId });
   if (existing && existing.status === "ready") return existing;
 
   // Create a placeholder so we can return the ID immediately
-  const course = existing || new Course({ videoId, title: "Processing...", url, status: "processing" });
+  const course =
+    existing ||
+    new Course({
+      videoId,
+      userId,
+      title: "Processing...",
+      url,
+      status: "processing",
+    });
   if (!existing) await course.save();
 
   // Run async pipeline (fire-and-forget, updates DB when done)

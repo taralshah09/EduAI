@@ -2,14 +2,43 @@ import { Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import CoursePage from './pages/CoursePage'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { Navigate } from 'react-router-dom'
+
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  if (!user) return <Navigate to="/login" />
+  return children
+}
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/course/:id" element={<CoursePage />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/course/:id"
+          element={
+            <ProtectedRoute>
+              <CoursePage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </AuthProvider>
   )
 }
 

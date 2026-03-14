@@ -19,7 +19,12 @@ const LessonSchema = new mongoose.Schema({
 
 const CourseSchema = new mongoose.Schema(
   {
-    videoId: { type: String, required: true, unique: true },
+    videoId: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     title: { type: String, required: true },
     url: { type: String, required: true },
     thumbnail: { type: String },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../services/api'
 import Navbar from '../components/Navbar'
 import CourseCard from '../components/CourseCard'
 import './DashboardPage.css'
@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   const fetchCourses = async () => {
     try {
-      const { data } = await axios.get('http://localhost:3000/api/courses')
+      const { data } = await api.get('/courses')
       setCourses(data.courses)
     } catch {
       setError('Failed to load courses.')

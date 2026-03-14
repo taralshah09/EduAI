@@ -7,7 +7,7 @@ export async function generateCourse(req, res) {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: "YouTube URL is required" });
 
-    const course = await buildCourse(url);
+    const course = await buildCourse(url, req.user._id);
     res.status(200).json({ course });
   } catch (err) {
     console.error("generateCourse error:", err.message);
@@ -18,7 +18,7 @@ export async function generateCourse(req, res) {
 // GET /api/courses
 export async function getAllCourses(req, res) {
   try {
-    const courses = await Course.find()
+    const courses = await Course.find({ userId: req.user._id })
       .select("videoId title url thumbnail status createdAt lessons")
       .sort({ createdAt: -1 });
 
@@ -43,7 +43,7 @@ export async function getAllCourses(req, res) {
 // GET /api/courses/:id
 export async function getCourseById(req, res) {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findOne({ _id: req.params.id, userId: req.user._id });
     if (!course) return res.status(404).json({ error: "Course not found" });
     res.json({ course });
   } catch (err) {
@@ -54,7 +54,10 @@ export async function getCourseById(req, res) {
 // GET /api/courses/status/:id  — poll for status during processing
 export async function getCourseStatus(req, res) {
   try {
-    const course = await Course.findById(req.params.id).select("status title errorMessage lessonCount");
+    const course = await Course.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    }).select("status title errorMessage lessonCount");
     if (!course) return res.status(404).json({ error: "Course not found" });
     res.json({
       status: course.status,

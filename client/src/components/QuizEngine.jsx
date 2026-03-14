@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../services/api'
 import './QuizEngine.css'
 
 export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, onBack }) {
@@ -21,7 +21,7 @@ export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, o
     setLoading(true)
     try {
       const answersArr = quiz.map((_, i) => answers[i] ?? -1)
-      const { data } = await axios.post('http://localhost:3000/api/quiz/submit', {
+      const { data } = await api.post('/quiz/submit', {
         courseId,
         lessonIndex,
         answers: answersArr,

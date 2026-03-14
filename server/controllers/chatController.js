@@ -11,7 +11,7 @@ export async function chat(req, res) {
     }
 
     // Load course for transcript context
-    const course = await Course.findById(courseId);
+    const course = await Course.findOne({ _id: courseId, userId: req.user._id });
     if (!course) return res.status(404).json({ error: "Course not found" });
 
     // Build transcript context: join all lesson transcripts
@@ -21,20 +21,30 @@ export async function chat(req, res) {
       .slice(0, 8000); // cap to avoid token overflow
 
     // Load recent chat history
-    const history = await Chat.find({ courseId })
+    const history = await Chat.find({ courseId, userId: req.user._id })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
     const historyOrdered = history.reverse();
 
     // Save user message
-    await Chat.create({ courseId, role: "user", content: message });
+    await Chat.create({
+      courseId,
+      userId: req.user._id,
+      role: "user",
+      content: message,
+    });
 
     // Get answer from Gemini
     const answer = await answerQuestion(message, transcriptContext, historyOrdered);
 
     // Save assistant message
-    await Chat.create({ courseId, role: "assistant", content: answer });
+    await Chat.create({
+      courseId,
+      userId: req.user._id,
+      role: "assistant",
+      content: answer,
+    });
 
     res.json({ answer });
   } catch (err) {
@@ -46,7 +56,10 @@ export async function chat(req, res) {
 // GET /api/chat/:courseId  — load chat history
 export async function getChatHistory(req, res) {
   try {
-    const messages = await Chat.find({ courseId: req.params.courseId })
+    const messages = await Chat.find({
+      courseId: req.params.courseId,
+      userId: req.user._id,
+    })
       .sort({ createdAt: 1 })
       .lean();
     res.json({ messages });

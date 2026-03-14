@@ -7,6 +7,11 @@ const ChatSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     role: {
       type: String,
       enum: ["user", "assistant"],

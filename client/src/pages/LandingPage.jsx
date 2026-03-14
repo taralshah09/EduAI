@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../services/api'
 import Navbar from '../components/Navbar'
 import './LandingPage.css'
 
@@ -27,7 +27,7 @@ export default function LandingPage() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await axios.post('http://localhost:3000/api/courses/generate', { url })
+      const { data } = await api.post('/courses/generate', { url })
       navigate(`/course/${data.course._id}`)
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to generate course. Please try again.')
