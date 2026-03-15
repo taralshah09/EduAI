@@ -44,7 +44,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB error:", err));
 
 // Routes
-app.get("/", (req, res) => res.json({ message: "MiyagiLabs API 🚀" }));
+app.get("/", (req, res) => res.json({ message: "TL;DR API 🚀" }));
 
 // Auth
 app.post("/api/auth/register", registerUser);
