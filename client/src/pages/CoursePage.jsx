@@ -7,6 +7,7 @@ import ChatWidget from '../components/ChatWidget'
 import MarkdownRenderer from '../components/MarkdownRenderer'
 import Loader from '../components/Loader'
 import Modal from '../components/Modal'
+import './CoursePage.css'
 
 export default function CoursePage() {
   const { id } = useParams()
@@ -102,32 +103,53 @@ export default function CoursePage() {
     <div className="bg-surface text-accent min-h-screen flex flex-col font-sans lg:h-screen lg:overflow-hidden">
       <Navbar />
       
-      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 lg:overflow-hidden">
-        {/* Column 1: Curriculum */}
-        <section className="w-full lg:w-1/4 bg-white border border-zinc-200 rounded-custom flex flex-col shrink-0 overflow-hidden shadow-sm max-h-[400px] lg:max-h-none">
-          <div className="p-6 border-b border-zinc-100">
-            <h2 className="font-display font-extrabold text-xl uppercase italic tracking-tight">Curriculum</h2>
-            <p className="text-[10px] font-bold text-zinc-400 uppercase mt-1 truncate">{course.title}</p>
+      <main className="course-layout-v2">
+        {/* Column 1: Curriculum & Concepts */}
+        <section className="col-left">
+          {/* Lessons List */}
+          <div className="bg-white border border-zinc-200 rounded-custom flex flex-col overflow-hidden shadow-sm lg:h-1/2">
+            <div className="p-6 border-b border-zinc-100">
+              <h2 className="font-display font-extrabold text-xl uppercase italic tracking-tight">Curriculum</h2>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase mt-1 truncate">{course.title}</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200">
+              {course.lessons.map((l, i) => (
+                <div 
+                  key={i}
+                  onClick={() => { setActiveLesson(i); setView('lesson') }}
+                  className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                    activeLesson === i 
+                    ? 'bg-primary border-black/5 shadow-sm' 
+                    : 'bg-zinc-50 border-transparent hover:border-zinc-200'
+                  }`}
+                >
+                  <span className={`text-[10px] font-black block mb-1 ${activeLesson === i ? 'opacity-50' : 'text-zinc-400'}`}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <p className={`font-bold text-sm ${activeLesson === i ? 'text-black' : 'text-zinc-600'}`}>{l.title}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200">
-            {course.lessons.map((l, i) => (
-              <div 
-                key={i}
-                onClick={() => { setActiveLesson(i); setView('lesson') }}
-                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
-                  activeLesson === i 
-                  ? 'bg-primary border-black/5 shadow-sm' 
-                  : 'bg-zinc-50 border-transparent hover:border-zinc-200'
-                }`}
-              >
-                <span className={`text-[10px] font-black block mb-1 ${activeLesson === i ? 'opacity-50' : 'text-zinc-400'}`}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <p className={`font-bold text-sm ${activeLesson === i ? 'text-black' : 'text-zinc-600'}`}>{l.title}</p>
+
+          {/* Concept Cards (Examples) */}
+          {lesson.examples?.length > 0 && (
+            <div className="bg-white border border-zinc-200 rounded-custom flex flex-col overflow-hidden shadow-sm lg:h-1/2">
+              <div className="p-6 border-b border-zinc-100">
+                <h4 className="font-display font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Concept Cards</h4>
               </div>
-            ))}
-          </div>
-          <div className="p-4 border-t border-zinc-100">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-zinc-200">
+                {lesson.examples.map((ex, i) => (
+                  <div key={i} className="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm">{i + 1}</span>
+                    <p className="text-zinc-600 font-medium text-xs leading-relaxed">{ex}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="p-4 bg-white border border-zinc-200 rounded-custom shadow-sm">
             <button 
               onClick={async () => {
                 if (window.confirm("Delete this course?")) {
@@ -143,7 +165,7 @@ export default function CoursePage() {
         </section>
 
         {/* Column 2: Content Area */}
-        <section className="flex-1 bg-white border border-zinc-200 rounded-custom flex flex-col overflow-hidden relative shadow-sm min-h-[500px] lg:min-h-0">
+        <section className="col-middle">
           <div className="flex-1 overflow-y-auto p-8 pb-32 scrollbar-thin scrollbar-thumb-zinc-200">
             {view === 'lesson' ? (
               <div className="space-y-8 animate-in fade-in duration-500">
@@ -157,25 +179,16 @@ export default function CoursePage() {
                   <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tighter uppercase leading-none text-accent">
                     {lesson.title}
                   </h1>
+                  {lesson.summary && (
+                    <div className="p-6 bg-zinc-50 border-l-4 border-primary rounded-r-3xl">
+                      <p className="text-zinc-600 italic font-medium">{lesson.summary}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-6 text-accent font-medium text-lg leading-relaxed prose prose-zinc max-w-none prose-headings:text-accent prose-headings:font-black prose-headings:tracking-tighter prose-headings:uppercase prose-p:text-zinc-600">
                   <MarkdownRenderer content={lesson.explanation} />
                 </div>
-
-                {lesson.examples?.length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-display font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Concept Examples</h4>
-                    <div className="grid gap-4">
-                      {lesson.examples.map((ex, i) => (
-                        <div key={i} className="p-6 bg-zinc-50 border border-zinc-100 rounded-3xl flex items-start gap-4">
-                          <span className="w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-xs font-black shrink-0 shadow-sm">{i + 1}</span>
-                          <p className="text-zinc-600 font-medium">{ex}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="h-full">
@@ -207,9 +220,10 @@ export default function CoursePage() {
         </section>
 
         {/* Column 3: AI Chat Interface */}
-        <section className="w-full lg:w-1/3 h-[600px] lg:h-auto bg-accent border border-white/10 rounded-custom overflow-hidden shadow-2xl flex flex-col shrink-0">
+        <section className="col-right">
           <ChatWidget courseId={id} />
         </section>
+
       </main>
     </div>
   )

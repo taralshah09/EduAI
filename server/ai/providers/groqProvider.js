@@ -14,8 +14,7 @@ const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
  * @param {string|null} userApiKey
  * @returns {Promise<{ text: string }>}
  */
-export async function call(prompt, model, signal, userApiKey = null) {
-  const apiKey = userApiKey || process.env.GROQ_API_KEY;
+export async function call(prompt, model, signal, apiKey) {
   if (!apiKey) throw Object.assign(new Error("Groq API key not set"), { code: "NO_KEY" });
 
   const res = await fetch(GROQ_API_URL, {

@@ -46,23 +46,25 @@ export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, o
     const pct = result.percentage
     const grade = pct >= 80 ? '🏆 Excellent!' : pct >= 60 ? '👍 Good job!' : '📖 Keep learning!'
     return (
-      <div className="quiz-engine fade-in">
+      <div className="quiz-engine animate-in fade-in duration-500">
         <div className="quiz-score-header">
           <div className="quiz-score-circle">
             <span className="quiz-score-num">{pct}%</span>
             <span className="quiz-score-label">{result.score}/{result.total}</span>
           </div>
-          <h2>{grade}</h2>
-          <p>You got {result.score} out of {result.total} questions correct on <strong>{lessonTitle}</strong></p>
+          <h2 className="score-title">{grade}</h2>
+          <p className="score-message">You completed <strong>{lessonTitle}</strong></p>
         </div>
 
         <div className="quiz-results-list">
           {result.results.map((r, i) => (
             <div key={i} className={`quiz-result-item ${r.isCorrect ? 'correct' : 'incorrect'}`}>
               <div className="quiz-result-header">
-                <span className="quiz-result-icon">{r.isCorrect ? '✓' : '✗'}</span>
-                <span className="quiz-q-num">Q{i + 1}</span>
-                <p className="quiz-q-text">{r.question}</p>
+                <div className="quiz-result-icon">{r.isCorrect ? '✓' : '✗'}</div>
+                <div>
+                  <span className="quiz-q-num">Question {i + 1}</span>
+                  <p className="quiz-q-text">{r.question}</p>
+                </div>
               </div>
               <div className="quiz-result-options">
                 {r.options.map((opt, oi) => (
@@ -79,8 +81,8 @@ export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, o
         </div>
 
         <div className="quiz-actions">
-          <button className="btn btn-secondary" onClick={handleRetry}>🔄 Retry Quiz</button>
-          <button className="btn btn-primary" onClick={onBack}>← Back to Lesson</button>
+          <button className="btn-quiz btn-secondary-quiz" onClick={handleRetry}>🔄 Retry Quiz</button>
+          <button className="btn-quiz btn-primary-quiz" onClick={onBack}>Back to Lesson</button>
         </div>
       </div>
     )
@@ -91,17 +93,17 @@ export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, o
   const totalAnswered = Object.keys(answers).length
 
   return (
-    <div className="quiz-engine fade-in">
+    <div className="quiz-engine animate-in fade-in duration-500">
       <div className="quiz-top">
-        <button className="btn btn-ghost btn-sm" onClick={onBack}>← Back</button>
+        <button className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-600" onClick={onBack}>← Back to Course</button>
         <span className="quiz-progress-text">Question {currentQ + 1} of {quiz.length}</span>
       </div>
 
-      <div className="quiz-progress-bar progress-track">
+      <div className="quiz-progress-bar">
         <div className="progress-fill" style={{ width: `${((currentQ + 1) / quiz.length) * 100}%` }}></div>
       </div>
 
-      <div className="quiz-question-card card">
+      <div className="quiz-question-card">
         <h3 className="quiz-question">{q.question}</h3>
         <div className="quiz-options">
           {q.options.map((opt, oi) => (
@@ -119,28 +121,28 @@ export default function QuizEngine({ quiz, courseId, lessonIndex, lessonTitle, o
 
       <div className="quiz-nav">
         <button
-          className="btn btn-secondary"
+          className="btn-quiz btn-secondary-quiz"
           onClick={() => setCurrentQ(q => Math.max(0, q - 1))}
           disabled={currentQ === 0}
         >
-          ← Prev
+          Previous
         </button>
 
         {currentQ < quiz.length - 1 ? (
           <button
-            className="btn btn-primary"
+            className="btn-quiz btn-primary-quiz"
             onClick={() => setCurrentQ(q => q + 1)}
             disabled={answers[currentQ] === undefined}
           >
-            Next →
+            Next Question
           </button>
         ) : (
           <button
-            className="btn btn-primary"
+            className="btn-quiz btn-primary-quiz"
             onClick={handleSubmit}
             disabled={loading || totalAnswered < quiz.length}
           >
-            {loading ? 'Submitting...' : `Submit (${totalAnswered}/${quiz.length})`}
+            {loading ? 'Analyzing...' : `Finish Quiz (${totalAnswered}/${quiz.length})`}
           </button>
         )}
       </div>

@@ -26,15 +26,12 @@ const BASE_DELAY_MS = 2000;
  * @param {Function|null} onUserKeyFailure
  * @returns {Promise<{ text: string }>}
  */
-export async function call(prompt, _model, signal, userApiKey = null, onUserKeyFailure = null) {
-  const sysKey = process.env.GEMINI_API_KEY;
-  if (!sysKey && !userApiKey) {
+export async function call(prompt, _model, signal, apiKey) {
+  if (!apiKey) {
     throw Object.assign(new Error("No Gemini API key available"), { code: "NO_KEY" });
   }
 
-  const defaultGenAI = sysKey ? new GoogleGenerativeAI(sysKey) : null;
-  let activeGenAI = userApiKey ? new GoogleGenerativeAI(userApiKey) : defaultGenAI;
-  let usingUserKey = !!userApiKey;
+  const activeGenAI = new GoogleGenerativeAI(apiKey);
   let lastError;
 
   for (const modelName of GEMINI_MODELS) {
@@ -74,20 +71,12 @@ export async function call(prompt, _model, signal, userApiKey = null, onUserKeyF
           (errMsg.includes("PerDay") || errMsg.includes("Daily") ||
             (errMsg.includes("limit: 0") && !retryDelayMs));
 
-        // Drop user key if it's invalid or hit daily quota
-        if (usingUserKey && (isInvalidKey || isDailyQuota) && defaultGenAI) {
-          console.error(`[Gemini] User key failed (${isInvalidKey ? "invalid" : "daily quota"}). Falling back to system key.`);
-          if (onUserKeyFailure) {
-            const reason = isInvalidKey ? "Invalid API Key" : "Daily Quota Exceeded";
-            await onUserKeyFailure(reason).catch((e) =>
-              console.error("onUserKeyFailure error:", e.message)
-            );
-          }
-          usingUserKey = false;
-          activeGenAI = defaultGenAI;
-          currentModel = activeGenAI.getGenerativeModel({ model: modelName });
-          attempt--;
-          continue;
+        if (isInvalidKey) {
+            throw Object.assign(new Error(`[Gemini] Invalid API Key`), { code: "INVALID_KEY" });
+        }
+        
+        if (isDailyQuota) {
+            throw Object.assign(new Error(`[Gemini] Daily Quota Exceeded`), { code: "DAILY_QUOTA" });
         }
 
         if (isQuotaExceeded) {

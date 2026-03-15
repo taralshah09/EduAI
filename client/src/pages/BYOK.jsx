@@ -4,9 +4,30 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 
 const PROVIDERS = [
-  { id: 'gemini', name: 'Google Gemini', icon: '✦', description: 'Google\'s most capable models (Flash, Pro). Generous free tiers available.' },
-  { id: 'groq', name: 'Groq', icon: '⚡', description: 'Ultra-fast LLaMA-3 models. Best for quick responses and summarization.' },
-  { id: 'openrouter', name: 'OpenRouter', icon: '∞', description: 'Universal gateway to hundreds of models (DeepSeek, Claude, GPT-4).' },
+  {
+    id: 'gemini',
+    name: 'Google Gemini',
+    icon: '✦',
+    description: 'Google\'s most capable models (Flash, Pro). Generous free tiers available.',
+    tutorialUrl: 'https://youtu.be/OAdHg28ROy8?si=cuWOYV_ZBj-GXxvF',
+    websiteUrl: 'https://aistudio.google.com/'
+  },
+  {
+    id: 'groq',
+    name: 'Groq',
+    icon: '⚡',
+    description: 'Ultra-fast LLaMA-3 models. Best for quick responses and summarization.',
+    tutorialUrl: 'https://youtu.be/nt1PJu47nTk?si=GCwylRWQXAcY5ttr',
+    websiteUrl: 'https://console.groq.com/keys'
+  },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    icon: '∞',
+    description: 'Universal gateway to hundreds of models (DeepSeek, Claude, GPT-4).',
+    tutorialUrl: 'https://youtu.be/VvJvJ0uXiVQ?si=C5o8lMpfT3OirbIM&t=166',
+    websiteUrl: 'https://openrouter.ai/settings/keys'
+  },
 ];
 
 const BYOK = () => {
@@ -101,17 +122,16 @@ const BYOK = () => {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-4">Select Provider</span>
                 <div className="text-lg text-gray-400">✱</div>
               </div>
-              
+
               <div className="flex flex-col gap-3">
                 {PROVIDERS.map((provider) => (
                   <button
                     key={provider.id}
                     onClick={() => setActiveProvider(provider.id)}
-                    className={`text-left p-6 rounded-[20px] transition-all relative overflow-hidden group border-[1.5px] ${
-                      activeProvider === provider.id 
-                        ? 'bg-dark text-white border-transparent shadow-xl' 
+                    className={`text-left p-6 rounded-[20px] transition-all relative overflow-hidden group border-[1.5px] ${activeProvider === provider.id
+                        ? 'bg-dark text-white border-transparent shadow-xl'
                         : 'bg-white text-dark border-gray-100 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
@@ -121,9 +141,8 @@ const BYOK = () => {
                         <span className="font-bold text-lg tracking-tight">{provider.name}</span>
                       </div>
                       {user?.[provider.id]?.apiKey && (
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
-                          activeProvider === provider.id ? 'bg-primary text-dark' : 'bg-green-100 text-green-600'
-                        }`}>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${activeProvider === provider.id ? 'bg-primary text-dark' : 'bg-green-100 text-green-600'
+                          }`}>
                           ACTIVE
                         </span>
                       )}
@@ -196,21 +215,19 @@ const BYOK = () => {
                         />
                       </div>
                       <p className="text-[10px] text-dark/60 mt-3 ml-4 font-medium italic">
-                        {activeProvider === 'gemini' 
-                          ? "If empty, the system's default key will be used." 
+                        {activeProvider === 'gemini'
+                          ? "If empty, the system's default key will be used."
                           : `This enables the use of ${currentProvider.name} in the fallback chain.`}
                       </p>
                     </div>
 
                     {message.text && (
-                      <div className={`p-4 rounded-2xl flex items-center gap-3 border transition-all animate-in fade-in slide-in-from-top-2 ${
-                        message.type === 'success' 
-                          ? 'bg-green-100/50 border-green-200 text-green-700' 
+                      <div className={`p-4 rounded-2xl flex items-center gap-3 border transition-all animate-in fade-in slide-in-from-top-2 ${message.type === 'success'
+                          ? 'bg-green-100/50 border-green-200 text-green-700'
                           : 'bg-red-100/50 border-red-200 text-red-700'
-                      }`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                          message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
                         }`}>
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${message.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                          }`}>
                           {message.type === 'success' ? '✓' : '!'}
                         </div>
                         <span className="text-xs font-bold uppercase tracking-wider">{message.text}</span>
@@ -240,6 +257,51 @@ const BYOK = () => {
                         </button>
                       )}
                     </div>
+
+                    {/* Tutorial and Resources Section */}
+                    <div className="mt-8 pt-8 border-t border-dark/10">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-dark/40">Help & Resources</span>
+                        <div className="flex gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-dark/20"></div>
+                          <div className="w-1.5 h-1.5 rounded-full bg-dark/10"></div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a
+                          href={currentProvider.tutorialUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 bg-white/20 hover:bg-white/40 p-4 rounded-2xl transition-all group/link border border-transparent hover:border-dark/5"
+                        >
+                          <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center text-white shadow-lg group-hover/link:scale-110 transition-transform">
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-dark/40 leading-none mb-1">Watch Guide</p>
+                            <p className="text-sm font-black text-dark uppercase tracking-tight">YouTube Tutorial</p>
+                          </div>
+                        </a>
+                        <a
+                          href={currentProvider.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 bg-white/20 hover:bg-white/40 p-4 rounded-2xl transition-all group/link border border-transparent hover:border-dark/5"
+                        >
+                          <div className="w-10 h-10 bg-dark rounded-xl flex items-center justify-center text-primary shadow-lg group-hover/link:scale-110 transition-transform">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-dark/40 leading-none mb-1">Official Dashboard</p>
+                            <p className="text-sm font-black text-dark uppercase tracking-tight">Get API Key</p>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -264,7 +326,7 @@ const BYOK = () => {
             <a className="hover:text-dark" href="#">API Guide</a>
             <a className="hover:text-dark" href="#">Privacy</a>
           </div>
-          <div>© 2025 EDU AI LABS • v1.4.2</div>
+          <div>© 2026 TL;DR LABS • v1.0.0</div>
         </footer>
       </div>
     </div>

@@ -31,7 +31,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-surface flex flex-col font-sans">
       <Navbar />
-      
+
       <main className="flex-grow p-6 md:p-10 w-full">
         {/* Dashboard Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -41,8 +41,8 @@ export default function DashboardPage() {
               {courses.length} course{courses.length !== 1 ? 's' : ''} in your workspace
             </p>
           </div>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="w-full md:w-auto group bg-primary text-dark font-black px-8 py-4 rounded-full uppercase tracking-tighter text-sm hover:brightness-105 transition-all shadow-lg flex items-center justify-center gap-3"
           >
             <span>+ New Course</span>
@@ -70,14 +70,14 @@ export default function DashboardPage() {
           </div>
         ) : error ? (
           <div className="bg-red-50 border border-red-100 p-8 rounded-[32px] text-center">
-             <p className="text-red-500 font-bold uppercase tracking-widest text-sm">{error}</p>
+            <p className="text-red-500 font-bold uppercase tracking-widest text-sm">{error}</p>
           </div>
         ) : courses.length === 0 ? (
           <div className="bg-white border-2 border-dashed border-gray-200 p-20 rounded-[48px] text-center group hover:border-primary transition-colors cursor-pointer">
-             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl group-hover:scale-110 transition-transform">🎓</div>
-             <h3 className="text-2xl font-black text-dark uppercase tracking-tighter mb-2">No courses yet</h3>
-             <p className="text-gray-400 font-medium mb-8 max-w-sm mx-auto">Start your learning journey by pasting a YouTube URL to generate your first AI-powered course.</p>
-             <Link to="/" className="inline-block bg-dark text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest text-xs">Generate your first course</Link>
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl group-hover:scale-110 transition-transform">🎓</div>
+            <h3 className="text-2xl font-black text-dark uppercase tracking-tighter mb-2">No courses yet</h3>
+            <p className="text-gray-400 font-medium mb-8 max-w-sm mx-auto">Start your learning journey by pasting a YouTube URL to generate your first AI-powered course.</p>
+            <Link to="/" className="inline-block bg-dark text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest text-xs">Generate your first course</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -90,7 +90,7 @@ export default function DashboardPage() {
 
       <footer className="p-10 text-center">
         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest leading-loose">
-          EDU AI LABS — <br className="md:hidden" /> REVOLUTIONIZING LEARNING ONE VIDEO AT A TIME
+          TL;DR — <br className="md:hidden" /> REVOLUTIONIZING LEARNING ONE VIDEO AT A TIME
         </p>
       </footer>
     </div>

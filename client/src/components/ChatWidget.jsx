@@ -170,7 +170,7 @@ export default function ChatWidget({ courseId }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
             </button>
           </div>
-          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest pointer-events-none">Powered by EDU AI</span>
+          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest pointer-events-none">Powered by TL;DR</span>
         </div>
       </div>
     </div>
