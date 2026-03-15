@@ -14,8 +14,7 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
  * @param {string|null} userApiKey
  * @returns {Promise<{ text: string }>}
  */
-export async function call(prompt, model, signal, userApiKey = null) {
-  const apiKey = userApiKey || process.env.OPENROUTER_API_KEY;
+export async function call(prompt, model, signal, apiKey) {
   if (!apiKey) throw Object.assign(new Error("OpenRouter API key not set"), { code: "NO_KEY" });
 
   const res = await fetch(OPENROUTER_API_URL, {

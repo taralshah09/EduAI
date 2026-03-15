@@ -15,6 +15,7 @@ import * as together from "./providers/togetherProvider.js";
 import * as openrouter from "./providers/openrouterProvider.js";
 import * as gemini from "./providers/geminiProvider.js";
 import { selectChain } from "./ModelSelector.js";
+import { getSystemKeysForProvider } from "../utils/apiKeys.js";
 
 const PROVIDERS = { groq, together, openrouter, gemini };
 
@@ -38,58 +39,79 @@ export async function call(task, prompt, { userApiKeys = {}, onUserKeyFailure = 
     const provider = PROVIDERS[providerName];
     if (!provider) continue;
 
-    const userKey = userApiKeys?.[providerName]?.apiKey;
-    const sysKeyName = `${providerName.toUpperCase()}_API_KEY`;
-    const sysKey = process.env[sysKeyName];
+    const userKeyObj = userApiKeys?.[providerName];
+    const userKey = userKeyObj?.apiKey;
+    const systemKeys = getSystemKeysForProvider(providerName);
+    
+    // Ordered list of keys to try: user key first (if any), then system keys
+    const keysToTry = [];
+    if (userKey) keysToTry.push({ type: 'user', key: userKey });
+    for (const sk of systemKeys) keysToTry.push({ type: 'system', key: sk });
 
-    // Skip provider if neither system key nor user key exists
-    if (!sysKey && !userKey) {
-      console.warn(`[AIRouter] Skipping ${providerName} — no key available`);
+    // Skip provider if neither system keys nor user key exists
+    if (keysToTry.length === 0) {
+      console.warn(`[AIRouter] Skipping ${providerName} — no keys available`);
       continue;
     }
 
     let rateLimitRetries = 0;
+    let currentKeyIndex = 0;
 
-    while (rateLimitRetries <= MAX_RATE_LIMIT_RETRIES) {
+    while (currentKeyIndex < keysToTry.length && rateLimitRetries <= MAX_RATE_LIMIT_RETRIES) {
+      const activeKeyInfo = keysToTry[currentKeyIndex];
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), PROVIDER_TIMEOUT_MS);
 
       try {
-        let result;
-        if (providerName === "gemini") {
-          result = await provider.call(prompt, model, controller.signal, userKey, onUserKeyFailure);
-        } else {
-          result = await provider.call(prompt, model, controller.signal, userKey);
-        }
+        let result = await provider.call(prompt, model, controller.signal, activeKeyInfo.key);
 
         clearTimeout(timer);
-        console.log(`[AIRouter] ✅ Task "${task}" served by ${providerName}/${model}`);
+        console.log(`[AIRouter] ✅ Task "${task}" served by ${providerName}/${model} (key type: ${activeKeyInfo.type})`);
         return result.text;
 
       } catch (err) {
         clearTimeout(timer);
         const code = err.code || "UNKNOWN";
+        const reason = code === "TIMEOUT" ? "timeout" : err.message;
+
+        // If the *user* key fails due to NO_KEY, INVALID_KEY, Daily Quota etc., we trigger the hook and fall back to system keys.
+        const isQuotaOrAuthError = ["RATE_LIMIT", "INVALID_KEY", "DAILY_QUOTA"].includes(code);
+        
+        if (activeKeyInfo.type === 'user' && (isQuotaOrAuthError || code === "NO_KEY")) {
+           console.warn(`[AIRouter] User key for ${providerName} failed: ${reason}. Falling back to system keys.`);
+           if (onUserKeyFailure && typeof onUserKeyFailure === 'function') {
+             await onUserKeyFailure(reason).catch(e => console.error("onUserKeyFailure error:", e.message));
+           }
+           currentKeyIndex++; // try next key (which will be a system key)
+           continue; 
+        }
 
         if (code === "NO_KEY") {
-          // Key was removed/missing mid-call — skip this provider entirely
-          errors.push(`${providerName}/${model}: no key`);
-          break;
+          // Key missing entirely - move to next key
+          errors.push(`${providerName}/${model}: key missing`);
+          currentKeyIndex++;
+          continue;
         }
 
-        if (code === "RATE_LIMIT" && rateLimitRetries < MAX_RATE_LIMIT_RETRIES) {
-          rateLimitRetries++;
-          const delay = RATE_LIMIT_BASE_DELAY_MS * Math.pow(2, rateLimitRetries - 1)
-                        * (0.8 + Math.random() * 0.4);
-          console.warn(`[AIRouter] ${providerName}/${model} rate limited. Retry ${rateLimitRetries}/${MAX_RATE_LIMIT_RETRIES} in ${(delay / 1000).toFixed(1)}s…`);
-          await sleep(delay);
-          continue; // retry same provider
+        if (isQuotaOrAuthError) {
+           console.warn(`[AIRouter] ${providerName}/${model} failed on key index ${currentKeyIndex} (${code}): ${reason}`);
+           // Move to next key for hard limits/auth. For soft rate limits we could theoretically retry same key
+           // but iterating keys is safer if we have multiple.
+           currentKeyIndex++;
+           if (currentKeyIndex < keysToTry.length) {
+              console.log(`[AIRouter] Trying next key for ${providerName}...`);
+              continue;
+           } else {
+              // all keys exhausted for this provider
+              errors.push(`${providerName}/${model} all keys exhausted. Last err: ${code}`);
+              break; 
+           }
         }
 
-        // For INVALID_KEY, TIMEOUT, API_ERROR, or exhausted rate-limit retries — move on
-        const reason = code === "TIMEOUT" ? "timeout" : err.message;
+        // For TIMEOUT or general API_ERROR — move on to next PROVIDER in the chain entirely
         console.warn(`[AIRouter] ⚠️  ${providerName}/${model} failed (${code}): ${reason}`);
         errors.push(`${providerName}/${model}: ${code} — ${reason}`);
-        break; // try next provider in chain
+        break; // break key loop, try next provider in chain
       }
     }
   }

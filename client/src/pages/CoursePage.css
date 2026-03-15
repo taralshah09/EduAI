@@ -9,9 +9,10 @@
 .course-layout-v2 {
   flex: 1;
   display: grid;
-  grid-template-columns: 320px 1fr 380px;
-  margin-top: 80px; /* Offset for fixed navbar */
-  height: calc(100vh - 80px);
+  grid-template-columns: 280px 1fr 340px;
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100vh - 64px); /* Adjusted for Navbar height (approx) */
   overflow: hidden;
 }
 
@@ -267,13 +268,26 @@
 }
 
 /* Responsive */
-@media (max-width: 1366px) {
-  .course-layout-v2 { grid-template-columns: 280px 1fr 340px; }
+@media (max-width: 1200px) {
+  .course-layout-v2 { 
+    grid-template-columns: 240px 1fr 300px; 
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
 }
 
-@media (max-width: 1100px) {
-  .course-layout-v2 { grid-template-columns: 1fr; }
-  .col-left, .col-right { display: none; }
+@media (max-width: 900px) {
+  .course-layout-v2 { 
+    grid-template-columns: 1fr; 
+    overflow-y: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .col-left, .col-right { 
+    height: auto;
+    min-height: 400px;
+  }
 }
 
 /* Section Labels */

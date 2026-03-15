@@ -4,6 +4,8 @@
  * Free tier: $25 credit on sign-up
  */
 
+import { getSystemKeysForProvider } from "../../utils/apiKeys.js";
+
 const TOGETHER_CHAT_URL = "https://api.together.xyz/v1/chat/completions";
 const TOGETHER_EMBED_URL = "https://api.together.xyz/v1/embeddings";
 
@@ -14,9 +16,8 @@ const TOGETHER_EMBED_URL = "https://api.together.xyz/v1/embeddings";
  * @param {AbortSignal} signal
  * @returns {Promise<{ text: string }>}
  */
-export async function call(prompt, model, signal) {
-  const apiKey = process.env.TOGETHER_API_KEY;
-  if (!apiKey) throw Object.assign(new Error("TOGETHER_API_KEY not set"), { code: "NO_KEY" });
+export async function call(prompt, model, signal, apiKey) {
+  if (!apiKey) throw Object.assign(new Error("Together API key not set"), { code: "NO_KEY" });
 
   const res = await fetch(TOGETHER_CHAT_URL, {
     method: "POST",
@@ -56,38 +57,52 @@ export async function call(prompt, model, signal) {
  * @returns {Promise<number[]>} 1024-dimensional embedding vector
  */
 export async function embed(text) {
-  const apiKey = process.env.TOGETHER_API_KEY;
+  const keys = getSystemKeysForProvider("together");
 
-  if (!apiKey) {
+  if (keys.length === 0) {
     // Sparse fallback: deterministic TF-IDF-style vector (1024-dim)
     return sparseFallbackEmbed(text);
   }
 
-  const res = await fetch(TOGETHER_EMBED_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "BAAI/bge-large-en-v1.5",
-      input: text.slice(0, 8000), // model context limit
-    }),
-  });
+  for (const apiKey of keys) {
+    try {
+      const res = await fetch(TOGETHER_EMBED_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "BAAI/bge-large-en-v1.5",
+          input: text.slice(0, 8000), // model context limit
+        }),
+      });
 
-  if (!res.ok) {
-    console.warn("[Together Embed] API failed, using sparse fallback");
-    return sparseFallbackEmbed(text);
+      if (!res.ok) {
+        if (res.status === 429 || res.status === 401) {
+            console.warn(`[Together Embed] API key failed (${res.status}), trying next key...`);
+            continue;
+        }
+        console.warn(`[Together Embed] API failed (${res.status}), using sparse fallback`);
+        return sparseFallbackEmbed(text);
+      }
+
+      const data = await res.json();
+      const embedding = data?.data?.[0]?.embedding;
+      if (!Array.isArray(embedding)) {
+        console.warn("[Together Embed] Invalid response format, using sparse fallback");
+        return sparseFallbackEmbed(text);
+      }
+
+      return embedding;
+    } catch (err) {
+      console.warn(`[Together Embed] Network error: ${err.message}, trying next key...`);
+      continue;
+    }
   }
 
-  const data = await res.json();
-  const embedding = data?.data?.[0]?.embedding;
-  if (!Array.isArray(embedding)) {
-    console.warn("[Together Embed] Invalid response, using sparse fallback");
-    return sparseFallbackEmbed(text);
-  }
-
-  return embedding;
+  console.warn("[Together Embed] All API keys failed, using sparse fallback");
+  return sparseFallbackEmbed(text);
 }
 
 /**

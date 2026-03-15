@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Education Dashboard - EduAI</title>
+<!-- Google Fonts: Inter and Archivo for that bold graphic look -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#D9F99D', // Lime green
+                        accent: '#18181b', // Dark zinc
+                        surface: '#f4f4f5', // Light gray background
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Archivo', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'custom': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f4f4f5;
+            color: #18181b;
+        }
+        .custom-border {
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4d4d8;
+            border-radius: 10px;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex h-screen p-4 md:p-6 gap-6 overflow-hidden">
+<!-- Sidebar (Original Navigation) -->
+<aside class="w-20 lg:w-64 bg-white border border-zinc-200 rounded-custom flex flex-col p-6 h-full shrink-0" data-purpose="navigation-sidebar">
+<div class="flex items-center gap-3 mb-12 px-2">
+<div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
+<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<span class="font-display font-extrabold text-2xl tracking-tighter hidden lg:block">EduAI</span>
+</div>
+<nav class="space-y-3 flex-1">
+<a class="flex items-center gap-4 px-4 py-3 text-sm font-bold bg-primary rounded-2xl border border-black/5" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden lg:block">Courses</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-sm font-semibold text-zinc-500 hover:text-accent hover:bg-zinc-100 transition-all rounded-2xl" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden lg:block">Progress</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-sm font-semibold text-zinc-500 hover:text-accent hover:bg-zinc-100 transition-all rounded-2xl" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden lg:block">AI Tutor</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-zinc-100">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full bg-zinc-200 border-2 border-white shadow-sm overflow-hidden flex-shrink-0">
+<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9_ZtyIWklTY6J-YmwiT-AvuSSQ6JhnRm2MexD7YY2LY40B0b7JmEzxb-xZTAvpQ_JRz72TN1tJxYRi_LC5Xxshqzf8GffE6KzPmOVT60Jch9W024hJDzidix0GDuXOetX_1R1bHTp1ip1hvtHpAhC7fxCq0d5ukS1yDYnDzhdh3AtmtAmA9CCdZ5yI9BFaIHe9yg2ROUm9wCp5Zgk_i03vdYjSG-Pq4KF2Jvo9a9WMplF5vxdBn0AdrV7knN2pPaKUJGPNFm1ZdY"/>
+</div>
+<div class="hidden lg:block">
+<p class="text-xs font-bold text-accent">Alex Johnson</p>
+<p class="text-[10px] text-zinc-400 font-medium">PRO STUDENT</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Dashboard Container -->
+<main class="flex-1 flex gap-6 overflow-hidden">
+<!-- Column 1: Lesson Titles -->
+<section class="w-1/4 bg-white border border-zinc-200 rounded-custom flex flex-col overflow-hidden" data-purpose="lesson-list">
+<div class="p-6 border-b border-zinc-100">
+<h2 class="font-display font-extrabold text-xl uppercase italic tracking-tight">Curriculum</h2>
+<p class="text-[10px] font-bold text-zinc-400 uppercase mt-1">Machine Learning Basics</p>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-2">
+<div class="p-4 rounded-2xl bg-primary border border-black/5 cursor-pointer">
+<span class="text-[10px] font-black opacity-50 block mb-1">01</span>
+<p class="font-bold text-sm">Introduction to AI</p>
+</div>
+<div class="p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 cursor-pointer transition-colors">
+<span class="text-[10px] font-black text-zinc-400 block mb-1">02</span>
+<p class="font-bold text-sm text-zinc-600">Linear Regression</p>
+</div>
+<div class="p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 cursor-pointer transition-colors">
+<span class="text-[10px] font-black text-zinc-400 block mb-1">03</span>
+<p class="font-bold text-sm text-zinc-600">Decision Trees</p>
+</div>
+<div class="p-4 rounded-2xl bg-accent border border-accent cursor-pointer">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-black text-primary block mb-1">04</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<p class="font-bold text-sm text-white">Neural Networks</p>
+</div>
+<div class="p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 cursor-pointer transition-colors opacity-60">
+<span class="text-[10px] font-black text-zinc-400 block mb-1">05</span>
+<p class="font-bold text-sm text-zinc-600">Backpropagation</p>
+</div>
+<div class="p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 cursor-pointer transition-colors opacity-60">
+<span class="text-[10px] font-black text-zinc-400 block mb-1">06</span>
+<p class="font-bold text-sm text-zinc-600">CNN Architectures</p>
+</div>
+<div class="p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 cursor-pointer transition-colors opacity-60">
+<span class="text-[10px] font-black text-zinc-400 block mb-1">07</span>
+<p class="font-bold text-sm text-zinc-600">Natural Language Processing</p>
+</div>
+</div>
+</section>
+<!-- Column 2: Video Player & Explanation -->
+<section class="flex-1 bg-white border border-zinc-200 rounded-custom flex flex-col overflow-hidden relative" data-purpose="video-content">
+<!-- Video Player (Fixed Top) -->
+<div class="p-6 bg-zinc-50 border-b border-zinc-200">
+<div class="aspect-video bg-accent rounded-[2rem] overflow-hidden relative flex items-center justify-center group">
+<img alt="Video Thumbnail" class="absolute inset-0 w-full h-full object-cover opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRfYLl3sebI9aXmKLwL_VLlSrBuvoYqVOtjmN_P8R5TXTo4QxN1eRGO368C6OYkT1zJ5jPrKPfWe14DgigJ0ZO4zH6ZSjT0TPbz1S2t9RlFtkkQQ3yxhTuDKSnKByUJHjaO8LA6buLFkKgB6iKUlCpumt4adqqdHIIcs3bBEuLQ6myoyrQGiXgsm_y69NEherO9BCbMz9tD0L-wgkUpdx9V5JuCi7mNvN3tK-vrA8FX0mj3upK9ZiGuKpteLMpRsiPC8_tyuak7P0"/>
+<button class="z-10 w-20 h-20 bg-primary text-accent rounded-full flex items-center justify-center shadow-2xl transition-transform hover:scale-110">
+<svg class="w-8 h-8 ml-1" fill="currentColor" viewbox="0 0 20 20"><path d="M4.018 14L14.41 10 4.018 6z"></path></svg>
+</button>
+<div class="absolute bottom-4 left-6 right-6 flex items-center gap-3">
+<div class="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 45%"></div>
+</div>
+<span class="text-[10px] font-bold text-white">12:45 / 24:00</span>
+</div>
+</div>
+</div>
+<!-- Scrollable Explanation Area -->
+<div class="flex-1 overflow-y-auto p-8 pb-32">
+<div class="mb-6">
+<h1 class="font-display text-4xl font-extrabold tracking-tighter uppercase leading-none">
+                        Neural Networks <span class="text-zinc-300">&amp; Logic</span>
+</h1>
+<div class="flex items-center gap-4 mt-4">
+<span class="px-3 py-1 bg-primary text-accent text-[10px] font-black rounded-full uppercase">Current Topic</span>
+<span class="text-zinc-400 text-xs font-medium">Difficulty: Intermediate</span>
+</div>
+</div>
+<div class="space-y-6 text-zinc-600 font-medium text-lg leading-relaxed">
+<p>
+                        In this comprehensive module, we explore the foundations of <span class="bg-primary/30 px-1 rounded">Artificial Neural Networks (ANNs)</span>. Inspired by the biological structure of the human brain, these mathematical models form the backbone of modern deep learning.
+                    </p>
+<p>
+                        We focus specifically on the role of neurons as computational units. Each neuron receives input, performs a weighted sum, and passes the result through an <span class="text-accent underline decoration-primary decoration-2 underline-offset-4 font-bold">activation function</span>. 
+                    </p>
+<p>
+                        Key concepts covered in this video:
+                    </p>
+<ul class="space-y-3 list-none pl-0">
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold shrink-0 mt-1">1</span>
+<span>The Forward Pass: How data flows from input to output layers.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold shrink-0 mt-1">2</span>
+<span>Weight Initialization: Starting the training process on the right foot.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold shrink-0 mt-1">3</span>
+<span>Loss Functions: Calculating the distance between prediction and reality.</span>
+</li>
+</ul>
+<div class="p-6 bg-accent text-white rounded-[2rem] mt-8">
+<h4 class="font-display font-bold text-primary uppercase italic mb-2">Did you know?</h4>
+<p class="text-sm text-zinc-300">The "vanishing gradient" problem was one of the primary hurdles that researchers had to solve before deep neural networks could become practical for large-scale tasks.</p>
+</div>
+</div>
+</div>
+<!-- Fixed Footer Button -->
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none">
+<button class="pointer-events-auto w-full py-5 bg-accent text-primary font-black uppercase text-sm tracking-[0.2em] rounded-2xl hover:brightness-110 transition-all shadow-2xl flex items-center justify-center gap-3">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    Create Knowledge Quiz
+                </button>
+</div>
+</section>
+<!-- Column 3: AI Chat Interface -->
+<section class="w-1/3 bg-accent rounded-custom flex flex-col overflow-hidden border border-white/10" data-purpose="ai-chat">
+<div class="p-6 border-b border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+<svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h2 class="font-display font-extrabold text-white text-lg uppercase tracking-tight">AI Study Buddy</h2>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+<span class="text-[10px] text-zinc-400 font-bold uppercase">Online</span>
+</div>
+</div>
+</div>
+<button class="text-zinc-500 hover:text-white transition-colors">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<!-- Chat Messages -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- AI Message -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
+<span class="text-xs font-black text-primary italic">AI</span>
+</div>
+<div class="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-none max-w-[85%]">
+<p class="text-sm text-zinc-300 leading-relaxed">
+                            Hey Alex! I'm ready to help you with Module 4. Do you want me to explain <span class="text-primary font-bold">backpropagation</span> in simpler terms, or should we go through the quiz questions first?
+                        </p>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-4 flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+<span class="text-[10px] font-black text-accent">YOU</span>
+</div>
+<div class="bg-primary text-accent p-4 rounded-2xl rounded-tr-none max-w-[85%] font-bold">
+<p class="text-sm">Can you explain why ReLU is preferred over Sigmoid?</p>
+</div>
+</div>
+<!-- AI Message -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
+<span class="text-xs font-black text-primary italic">AI</span>
+</div>
+<div class="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-none max-w-[85%]">
+<p class="text-sm text-zinc-300 leading-relaxed">
+                            Great question! 🚀 ReLU is mostly preferred because:
+                            <br/><br/>
+                            1. <span class="text-white font-bold">Gradient Flow:</span> It doesn't saturate in the positive region, which avoids the vanishing gradient problem.
+                            <br/>
+                            2. <span class="text-white font-bold">Efficiency:</span> It's just a simple threshold at zero (max(0, x)), making it much faster to compute than Sigmoid's exponential.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Chat Input -->
+<div class="p-6 bg-white/5 border-t border-white/10">
+<div class="relative">
+<input class="w-full bg-white/10 border-0 rounded-2xl px-6 py-4 pr-16 text-white text-sm placeholder:text-zinc-500 focus:ring-2 focus:ring-primary focus:bg-white/15 transition-all" placeholder="Ask anything about the lesson..." type="text"/>
+<button class="absolute right-2 top-2 bottom-2 aspect-square bg-primary text-accent rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Powered by EduAI v4</span>
+</div>
+</div>
+</section>
+</main>
+</body></html>
