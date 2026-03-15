@@ -8,6 +8,12 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     gemini: {
       apiKey: { type: String, default: "" }
+    },
+    groq: {
+      apiKey: { type: String, default: "" }
+    },
+    openrouter: {
+      apiKey: { type: String, default: "" }
     }
   },
   { timestamps: true }

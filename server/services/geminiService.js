@@ -61,7 +61,8 @@ async function generateWithRetry(prompt, maxRetries = 3, baseDelayMs = 2000, use
 
         // If it's an invalid key OR a permanent daily quota exhaustion, we drop the user key
         if (usingUserKey && (isInvalidKey || isDailyQuota)) {
-          console.warn(`[Gemini] User API key failed (${isInvalidKey ? 'Invalid' : 'Daily Quota Exceeded'}). Falling back to default key...`);
+          console.error(`[Gemini] User API key failed. Reason: ${isInvalidKey ? 'Invalid API Key' : 'Daily Quota Exceeded'}. Original error: ${errMsg}`);
+          console.warn(`[Gemini] Falling back to default key...`);
           if (onUserKeyFailure) {
             const reason = isInvalidKey ? 'Invalid API Key' : 'Daily Quota Exceeded';
             try { await onUserKeyFailure(reason); }

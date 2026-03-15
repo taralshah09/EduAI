@@ -42,6 +42,8 @@ export const registerUser = async (req, res) => {
         email: user.email,
         token,
         gemini: user.gemini,
+        groq: user.groq,
+        openrouter: user.openrouter,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -76,6 +78,8 @@ export const authUser = async (req, res) => {
         email: user.email,
         token,
         gemini: user.gemini,
+        groq: user.groq,
+        openrouter: user.openrouter,
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
@@ -94,6 +98,8 @@ export const getUserProfile = async (req, res) => {
       name: user.name,
       email: user.email,
       gemini: user.gemini,
+      groq: user.groq,
+      openrouter: user.openrouter,
     });
   } else {
     res.status(404).json({ message: "User not found" });
@@ -119,17 +125,29 @@ export const updateApiKeys = async (req, res) => {
     }
 
     if (req.body.gemini !== undefined) {
-      if (!user.gemini) {
-        user.gemini = {};
-      }
-      user.gemini.apiKey = req.body.gemini;
+      if (!user.gemini) user.gemini = {};
+      user.gemini.apiKey = req.body.gemini.trim();
+    }
+
+    if (req.body.groq !== undefined) {
+      if (!user.groq) user.groq = {};
+      user.groq.apiKey = req.body.groq.trim();
+    }
+
+    if (req.body.openrouter !== undefined) {
+      if (!user.openrouter) user.openrouter = {};
+      user.openrouter.apiKey = req.body.openrouter.trim();
     }
 
     await user.save();
 
     res.json({
       message: "API keys updated successfully",
-      apiKeys: user.gemini,
+      apiKeys: {
+        gemini: user.gemini,
+        groq: user.groq,
+        openrouter: user.openrouter,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

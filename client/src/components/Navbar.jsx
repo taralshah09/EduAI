@@ -51,6 +51,14 @@ export default function Navbar() {
               BYOK
             </Link>
           )}
+          <a
+            href="https://www.taralshah.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-link"
+          >
+            Builder
+          </a>
         </div>
 
         <div className="navbar-actions">

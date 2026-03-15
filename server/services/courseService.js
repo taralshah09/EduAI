@@ -3,32 +3,42 @@ import User from "../models/User.js";
 import {
   extractVideoId,
   fetchTranscript,
-  chunkTranscript,
   joinTranscript,
 } from "./transcriptService.js";
+import { chunkItems } from "../ai/TranscriptChunker.js";
 import {
   generateLessonContent,
   generateQuiz,
   generateCourseTitle,
   checkContentSafety,
-} from "./geminiService.js";
+} from "../ai/ContentGenerator.js";
+import * as Cache from "../ai/CacheService.js";
 
 /**
  * Main pipeline: YouTube URL → structured Course saved in MongoDB
  */
-export async function buildCourse(url, userId, userApiKey = null) {
+export async function buildCourse(url, userId, userApiKeys = null) {
   const videoId = extractVideoId(url);
   if (!videoId) throw new Error("Invalid YouTube URL");
 
-  // Check if course already exists for THIS user
-  const existing = await Course.findOne({ videoId, userId });
+  // Check if course already exists for THIS user using the new courseKey
+  const courseKey = userId + videoId;
+  const existing = await Course.findOne({ courseKey });
   if (existing && existing.status === "ready") return existing;
+
+  // Check in-memory cache (avoids DB round-trip for very recent requests)
+  const cacheKey = `course:${videoId}:${userId}`;
+  if (Cache.has(cacheKey)) {
+    console.log(`[CourseService] Cache hit for videoId=${videoId}`);
+    return Cache.get(cacheKey);
+  }
 
   // Create a placeholder so we can return the ID immediately
   const course =
     existing ||
     new Course({
       videoId,
+      courseKey,
       userId,
       title: "Processing...",
       url,
@@ -37,7 +47,7 @@ export async function buildCourse(url, userId, userApiKey = null) {
   if (!existing) await course.save();
 
   // Run async pipeline (fire-and-forget, updates DB when done)
-  processCourse(course, videoId, url, userApiKey, userId).catch(async (err) => {
+  processCourse(course, videoId, url, userApiKeys, userId).catch(async (err) => {
     console.error("Course generation error:", err.message);
     await Course.findByIdAndUpdate(course._id, {
       status: "error",
@@ -48,12 +58,13 @@ export async function buildCourse(url, userId, userApiKey = null) {
   return course;
 }
 
-async function processCourse(course, videoId, url, userApiKey = null, userId = null) {
+async function processCourse(course, videoId, url, userApiKeys = null, userId = null) {
   let userKeyFailed = false;
   const onUserKeyFailure = async (reason) => {
     if (userKeyFailed) return; // Only trigger DB update once per course
     userKeyFailed = true;
     if (userId) {
+      // For now, onUserKeyFailure is mostly triggered by Gemini
       await User.findByIdAndUpdate(userId, { $unset: { "gemini.apiKey": "" } }).catch(e => console.error("User key unset error:", e.message));
     }
     const msg = `Your personal API key failed (${reason}). We've fallen back to the system default key and removed your invalid key.`;
@@ -61,6 +72,7 @@ async function processCourse(course, videoId, url, userApiKey = null, userId = n
   };
 
   // 1. Fetch transcript and metadata
+  // ... (lines 74-92)
   let transcriptData;
   try {
     transcriptData = await fetchTranscript(videoId);
@@ -82,16 +94,16 @@ async function processCourse(course, videoId, url, userApiKey = null, userId = n
 
   // 1c. Content Safety Check
   console.log(`[Safety] Checking content for video: ${metadata.title}...`);
-  const safety = await checkContentSafety(fullText, userApiKey, onUserKeyFailure);
+  const safety = await checkContentSafety(fullText, userApiKeys, onUserKeyFailure);
   if (!safety.isSafe) {
     throw new Error(`Inappropriate content detected: ${safety.reason || "NSFW content"}`);
   }
 
   // 2. Generate course title
-  const title = metadata.title || (await generateCourseTitle(fullText, userApiKey, onUserKeyFailure));
+  const title = metadata.title || (await generateCourseTitle(fullText, userApiKeys, onUserKeyFailure));
 
-  // 3. Chunk transcript into lessons (max 6 lessons for reasonable API usage)
-  const chunks = chunkTranscript(transcriptItems, 700);
+  // 3. Chunk transcript into lessons using token-aware chunker (max 6 lessons)
+  const chunks = chunkItems(transcriptItems);
   const limitedChunks = chunks.slice(0, 6);
 
   // 4. Generate content for each chunk in sequence (to avoid rate limiting)
@@ -102,7 +114,7 @@ async function processCourse(course, videoId, url, userApiKey = null, userId = n
 
     let lessonData;
     try {
-      lessonData = await generateLessonContent(chunk.text, chunk.chunkIndex, userApiKey, onUserKeyFailure);
+      lessonData = await generateLessonContent(chunk.text, chunk.chunkIndex, userApiKeys, onUserKeyFailure);
     } catch (err) {
       console.error(`Lesson ${chunk.chunkIndex} generation error:`, err.message);
       lessonData = {
@@ -124,7 +136,7 @@ async function processCourse(course, videoId, url, userApiKey = null, userId = n
       quiz = await generateQuiz(
         lessonData.title,
         `${lessonData.summary}\n${lessonData.explanation}`,
-        userApiKey,
+        userApiKeys,
         onUserKeyFailure
       );
     } catch (err) {
@@ -142,13 +154,17 @@ async function processCourse(course, videoId, url, userApiKey = null, userId = n
   const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
   // 7. Update Course in DB
-  await Course.findByIdAndUpdate(course._id, {
-    title,
-    thumbnail,
-    lessons,
-    status: "ready",
-    errorMessage: null,
-  });
+  const updatedCourse = await Course.findByIdAndUpdate(
+    course._id,
+    { title, thumbnail, lessons, status: "ready", errorMessage: null },
+    { new: true }
+  );
+
+  // Cache the completed course in memory (2-hour TTL)
+  if (updatedCourse) {
+    Cache.set(`course:${videoId}:${userId}`, updatedCourse);
+  }
 
   console.log(`✅ Course ready: "${title}" (${lessons.length} lessons)`);
+  console.log(`[CourseService] Cached course for videoId=${videoId}`);
 }

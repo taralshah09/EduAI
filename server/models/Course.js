@@ -20,6 +20,7 @@ const LessonSchema = new mongoose.Schema({
 const CourseSchema = new mongoose.Schema(
   {
     videoId: { type: String, required: true },
+    courseKey: { type: String, required: true, index: true },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

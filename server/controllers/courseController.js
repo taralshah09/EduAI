@@ -7,7 +7,7 @@ export async function generateCourse(req, res) {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: "YouTube URL is required" });
 
-    const course = await buildCourse(url, req.user._id, req.user.gemini?.apiKey);
+    const course = await buildCourse(url, req.user._id, req.user);
     res.status(200).json({ course });
   } catch (err) {
     console.error("generateCourse error:", err.message);

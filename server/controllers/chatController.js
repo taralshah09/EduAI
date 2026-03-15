@@ -1,6 +1,7 @@
 import Chat from "../models/Chat.js";
 import Course from "../models/Course.js";
-import { answerQuestion } from "../services/geminiService.js";
+import { answerQuestion } from "../ai/ContentGenerator.js";
+import { retrieve } from "../ai/RAGService.js";
 
 // POST /api/chat
 export async function chat(req, res) {
@@ -14,11 +15,26 @@ export async function chat(req, res) {
     const course = await Course.findOne({ _id: courseId, userId: req.user._id });
     if (!course) return res.status(404).json({ error: "Course not found" });
 
-    // Build transcript context: join all lesson transcripts
-    const transcriptContext = course.lessons
-      .map((l, i) => `[Lesson ${i + 1}: ${l.title}]\n${l.transcript || l.summary}`)
-      .join("\n\n")
-      .slice(0, 8000); // cap to avoid token overflow
+    // Build chunk list from lesson transcripts for RAG retrieval
+    const chunks = course.lessons
+      .filter((l) => l.transcript || l.summary)
+      .map((l, i) => ({
+        chunkIndex: i,
+        text: `[Lesson ${i + 1}: ${l.title}]\n${l.transcript || l.summary}`,
+      }));
+
+    // Use RAG to retrieve only the most relevant chunks (semantic search)
+    // Falls back gracefully to the first 3 chunks if embedding fails
+    let transcriptContext;
+    try {
+      transcriptContext = await retrieve(message, courseId, chunks, 3);
+    } catch (ragErr) {
+      console.warn("[Chat] RAG retrieval failed, using fallback context:", ragErr.message);
+      transcriptContext = chunks
+        .slice(0, 3)
+        .map((c) => c.text)
+        .join("\n\n---\n\n");
+    }
 
     // Load recent chat history
     const history = await Chat.find({ courseId, userId: req.user._id })
@@ -40,14 +56,15 @@ export async function chat(req, res) {
     const onUserKeyFailure = async (reason) => {
       if (userKeyFailed) return;
       userKeyFailed = true;
+      // For now, we mainly handle Gemini failure callback
       await import("../models/User.js").then(({ default: User }) => 
         User.findByIdAndUpdate(req.user._id, { $unset: { "gemini.apiKey": "" } })
       ).catch(e => console.error("User key unset error:", e.message));
       warning = `⚠️ **Notice:** Your personal API key failed (${reason}). We've fallen back to the system default key and removed your invalid key.`;
     };
 
-    // Get answer from Gemini
-    const answer = await answerQuestion(message, transcriptContext, historyOrdered, req.user.gemini?.apiKey, onUserKeyFailure);
+    // Get answer from AI
+    const answer = await answerQuestion(message, transcriptContext, historyOrdered, req.user, onUserKeyFailure);
 
     // Save assistant message
     await Chat.create({
