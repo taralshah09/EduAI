@@ -25,6 +25,7 @@ import {
 import { protect } from "./middlewares/authMiddleware.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 // Middleware
 app.use(express.json());

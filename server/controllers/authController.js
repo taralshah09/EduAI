@@ -27,8 +27,8 @@ export const registerUser = async (req, res) => {
       const token = generateToken(user._id);
       const cookieOptions = {
         httpOnly: false, // email and name should be accessible by JS if needed, but token MUST be httpOnly
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       };
 
@@ -63,8 +63,8 @@ export const authUser = async (req, res) => {
       const token = generateToken(user._id);
       const cookieOptions = {
         httpOnly: false,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
       };
 
@@ -109,6 +109,8 @@ export const getUserProfile = async (req, res) => {
 export const logoutUser = (req, res) => {
   const options = {
     httpOnly: true,
+    secure: true,
+    sameSite: "none",
     expires: new Date(0),
   };
   res.clearCookie("token", options);
