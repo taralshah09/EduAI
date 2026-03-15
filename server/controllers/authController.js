@@ -41,6 +41,7 @@ export const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         token,
+        gemini: user.gemini,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -74,6 +75,7 @@ export const authUser = async (req, res) => {
         name: user.name,
         email: user.email,
         token,
+        gemini: user.gemini,
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
@@ -91,6 +93,7 @@ export const getUserProfile = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      gemini: user.gemini,
     });
   } else {
     res.status(404).json({ message: "User not found" });
@@ -106,4 +109,29 @@ export const logoutUser = (req, res) => {
   res.clearCookie("email", { ...options, httpOnly: false });
   res.clearCookie("name", { ...options, httpOnly: false });
   res.status(200).json({ message: "Logged out successfully" });
+};
+
+export const updateApiKeys = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (req.body.gemini !== undefined) {
+      if (!user.gemini) {
+        user.gemini = {};
+      }
+      user.gemini.apiKey = req.body.gemini;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "API keys updated successfully",
+      apiKeys: user.gemini,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

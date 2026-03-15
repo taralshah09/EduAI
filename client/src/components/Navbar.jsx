@@ -43,6 +43,14 @@ export default function Navbar() {
               Dashboard
             </Link>
           )}
+          {user && (
+            <Link
+              to="/byok"
+              className={`nav-link ${pathname === "/byok" ? "active" : ""}`}
+            >
+              BYOK
+            </Link>
+          )}
         </div>
 
         <div className="navbar-actions">

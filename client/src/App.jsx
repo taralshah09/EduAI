@@ -4,8 +4,10 @@ import DashboardPage from './pages/DashboardPage'
 import CoursePage from './pages/CoursePage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import BYOK from './pages/BYOK'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { Navigate } from 'react-router-dom'
+import World404 from './pages/World404'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -37,6 +39,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/byok"
+          element={
+            <ProtectedRoute>
+              <BYOK />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<World404 />} />
       </Routes>
     </AuthProvider>
   )

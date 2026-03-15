@@ -11,6 +11,7 @@ import {
   getAllCourses,
   getCourseById,
   getCourseStatus,
+  deleteCourse,
 } from "./controllers/courseController.js";
 import { chat, getChatHistory } from "./controllers/chatController.js";
 import { submitQuiz } from "./controllers/quizController.js";
@@ -19,6 +20,7 @@ import {
   authUser,
   getUserProfile,
   logoutUser,
+  updateApiKeys,
 } from "./controllers/authController.js";
 import { protect } from "./middlewares/authMiddleware.js";
 
@@ -49,12 +51,14 @@ app.post("/api/auth/register", registerUser);
 app.post("/api/auth/login", authUser);
 app.post("/api/auth/logout", logoutUser);
 app.get("/api/auth/profile", protect, getUserProfile);
+app.put("/api/auth/api-keys", protect, updateApiKeys);
 
 // Courses
 app.post("/api/courses/generate", protect, generateCourse);
 app.get("/api/courses", protect, getAllCourses);
 app.get("/api/courses/status/:id", protect, getCourseStatus);
 app.get("/api/courses/:id", protect, getCourseById);
+app.delete("/api/courses/:id", protect, deleteCourse);
 
 // Chat
 app.post("/api/chat", protect, chat);

@@ -287,3 +287,18 @@
   display: block;
 }
 
+.course-warning-banner {
+  background-color: rgba(255, 204, 0, 0.1);
+  color: #ffcc00;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+  padding: 12px 20px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin: 16px auto 0;
+  max-width: 90%;
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+}
+

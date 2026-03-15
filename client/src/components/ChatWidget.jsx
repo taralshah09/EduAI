@@ -44,12 +44,17 @@ export default function ChatWidget({ courseId }) {
         courseId,
         message: text,
       })
-      const assistantMsg = { role: 'assistant', content: data.answer, _id: Date.now() + 1 }
-      setMessages(prev => [...prev, assistantMsg])
+      const newMsgs = [
+        { role: 'assistant', content: data.answer, _id: Date.now() + 1 }
+      ];
+      if (data.warning) {
+        newMsgs.push({ role: 'assistant', content: data.warning, _id: Date.now() + 2 });
+      }
+      setMessages(prev => [...prev, ...newMsgs])
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: '❌ Sorry, something went wrong. Please try again.',
+        content: err.response?.data?.error ? `❌ Error: ${err.response.data.error}` : '❌ Sorry, something went wrong. Please try again.',
         _id: Date.now() + 1
       }])
     } finally {

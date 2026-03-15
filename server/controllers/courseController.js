@@ -7,7 +7,7 @@ export async function generateCourse(req, res) {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: "YouTube URL is required" });
 
-    const course = await buildCourse(url, req.user._id);
+    const course = await buildCourse(url, req.user._id, req.user.gemini?.apiKey);
     res.status(200).json({ course });
   } catch (err) {
     console.error("generateCourse error:", err.message);
@@ -57,13 +57,25 @@ export async function getCourseStatus(req, res) {
     const course = await Course.findOne({
       _id: req.params.id,
       userId: req.user._id,
-    }).select("status title errorMessage lessonCount");
+    }).select("status title errorMessage lessonCount warningMessage");
     if (!course) return res.status(404).json({ error: "Course not found" });
     res.json({
       status: course.status,
       title: course.title,
       errorMessage: course.errorMessage,
+      warningMessage: course.warningMessage,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// DELETE /api/courses/:id
+export async function deleteCourse(req, res) {
+  try {
+    const course = await Course.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    if (!course) return res.status(404).json({ error: "Course not found" });
+    res.json({ message: "Course deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

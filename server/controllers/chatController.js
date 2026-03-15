@@ -35,8 +35,19 @@ export async function chat(req, res) {
       content: message,
     });
 
+    let warning = null;
+    let userKeyFailed = false;
+    const onUserKeyFailure = async (reason) => {
+      if (userKeyFailed) return;
+      userKeyFailed = true;
+      await import("../models/User.js").then(({ default: User }) => 
+        User.findByIdAndUpdate(req.user._id, { $unset: { "gemini.apiKey": "" } })
+      ).catch(e => console.error("User key unset error:", e.message));
+      warning = `⚠️ **Notice:** Your personal API key failed (${reason}). We've fallen back to the system default key and removed your invalid key.`;
+    };
+
     // Get answer from Gemini
-    const answer = await answerQuestion(message, transcriptContext, historyOrdered);
+    const answer = await answerQuestion(message, transcriptContext, historyOrdered, req.user.gemini?.apiKey, onUserKeyFailure);
 
     // Save assistant message
     await Chat.create({
@@ -46,7 +57,7 @@ export async function chat(req, res) {
       content: answer,
     });
 
-    res.json({ answer });
+    res.json({ answer, warning });
   } catch (err) {
     console.error("Chat error:", err.message);
     res.status(500).json({ error: err.message });

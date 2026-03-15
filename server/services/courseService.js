@@ -1,4 +1,5 @@
 import Course from "../models/Course.js";
+import User from "../models/User.js";
 import {
   extractVideoId,
   fetchTranscript,
@@ -15,7 +16,7 @@ import {
 /**
  * Main pipeline: YouTube URL → structured Course saved in MongoDB
  */
-export async function buildCourse(url, userId) {
+export async function buildCourse(url, userId, userApiKey = null) {
   const videoId = extractVideoId(url);
   if (!videoId) throw new Error("Invalid YouTube URL");
 
@@ -36,7 +37,7 @@ export async function buildCourse(url, userId) {
   if (!existing) await course.save();
 
   // Run async pipeline (fire-and-forget, updates DB when done)
-  processCourse(course, videoId, url).catch(async (err) => {
+  processCourse(course, videoId, url, userApiKey, userId).catch(async (err) => {
     console.error("Course generation error:", err.message);
     await Course.findByIdAndUpdate(course._id, {
       status: "error",
@@ -47,7 +48,18 @@ export async function buildCourse(url, userId) {
   return course;
 }
 
-async function processCourse(course, videoId, url) {
+async function processCourse(course, videoId, url, userApiKey = null, userId = null) {
+  let userKeyFailed = false;
+  const onUserKeyFailure = async (reason) => {
+    if (userKeyFailed) return; // Only trigger DB update once per course
+    userKeyFailed = true;
+    if (userId) {
+      await User.findByIdAndUpdate(userId, { $unset: { "gemini.apiKey": "" } }).catch(e => console.error("User key unset error:", e.message));
+    }
+    const msg = `Your personal API key failed (${reason}). We've fallen back to the system default key and removed your invalid key.`;
+    await Course.findByIdAndUpdate(course._id, { warningMessage: msg }).catch(e => console.error("Course warning update error:", e.message));
+  };
+
   // 1. Fetch transcript and metadata
   let transcriptData;
   try {
@@ -70,13 +82,13 @@ async function processCourse(course, videoId, url) {
 
   // 1c. Content Safety Check
   console.log(`[Safety] Checking content for video: ${metadata.title}...`);
-  const safety = await checkContentSafety(fullText);
+  const safety = await checkContentSafety(fullText, userApiKey, onUserKeyFailure);
   if (!safety.isSafe) {
     throw new Error(`Inappropriate content detected: ${safety.reason || "NSFW content"}`);
   }
 
   // 2. Generate course title
-  const title = metadata.title || (await generateCourseTitle(fullText));
+  const title = metadata.title || (await generateCourseTitle(fullText, userApiKey, onUserKeyFailure));
 
   // 3. Chunk transcript into lessons (max 6 lessons for reasonable API usage)
   const chunks = chunkTranscript(transcriptItems, 700);
@@ -90,12 +102,13 @@ async function processCourse(course, videoId, url) {
 
     let lessonData;
     try {
-      lessonData = await generateLessonContent(chunk.text, chunk.chunkIndex);
+      lessonData = await generateLessonContent(chunk.text, chunk.chunkIndex, userApiKey, onUserKeyFailure);
     } catch (err) {
       console.error(`Lesson ${chunk.chunkIndex} generation error:`, err.message);
       lessonData = {
         title: `Lesson ${chunk.chunkIndex + 1}`,
         summary: "Content generation failed for this section.",
+        error: err.message,
         concepts: [],
         explanation: chunk.text.slice(0, 500),
         examples: [],
@@ -110,7 +123,9 @@ async function processCourse(course, videoId, url) {
     try {
       quiz = await generateQuiz(
         lessonData.title,
-        `${lessonData.summary}\n${lessonData.explanation}`
+        `${lessonData.summary}\n${lessonData.explanation}`,
+        userApiKey,
+        onUserKeyFailure
       );
     } catch (err) {
       console.error(`Quiz generation error for lesson ${chunk.chunkIndex}:`, err.message);

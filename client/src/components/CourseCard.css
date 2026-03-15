@@ -53,6 +53,13 @@
   flex: 1;
 }
 
+.course-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .course-card-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -62,6 +69,25 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1;
+}
+
+.btn-delete-course {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-course:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .course-card-meta {

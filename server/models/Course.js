@@ -36,6 +36,7 @@ const CourseSchema = new mongoose.Schema(
       default: "processing",
     },
     errorMessage: { type: String },
+    warningMessage: { type: String },
   },
   { timestamps: true }
 );

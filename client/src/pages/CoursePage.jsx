@@ -90,11 +90,36 @@ export default function CoursePage() {
     <div className="course-page">
       <Navbar />
 
+      {course?.warningMessage && (
+        <div className="course-warning-banner">
+          ⚠️ {course.warningMessage}
+        </div>
+      )}
+
       <div className="course-layout-v2">
         {/* LEFT COLUMN: Navigation / Context */}
         <aside className="col-left">
           <div className="col-header">
-            <Breadcrumbs courseTitle={course.title} lessonTitle={lesson.title} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Breadcrumbs courseTitle={course.title} lessonTitle={lesson.title} />
+              <button 
+                className="btn-icon" 
+                onClick={async () => {
+                  if (window.confirm("Are you sure you want to delete this course?")) {
+                    try {
+                      await api.delete(`/courses/${course._id}`);
+                      navigate('/');
+                    } catch (e) {
+                      alert("Failed to delete course");
+                    }
+                  }
+                }}
+                title="Delete Course"
+                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0 4px', opacity: 0.7 }}
+              >
+                🗑️
+              </button>
+            </div>
             <h2 className="video-title">{lesson.title}</h2>
           </div>
           
@@ -140,13 +165,18 @@ export default function CoursePage() {
             {view === 'lesson' ? (
               <div className="lesson-content-v2">
                 <div className="scrollable-concept-content">
+                  {lesson.error && (
+                    <div className="course-warning-banner" style={{ background: 'var(--bg-card)', color: '#ff4444', border: '1px solid #ff4444', marginBottom: '20px' }}>
+                      ❌ <strong>Error loading lesson:</strong> {lesson.error}
+                    </div>
+                  )}
                   <h4 className="section-label">Concept Content</h4>
                   <div className="explanation-text">
                     <MarkdownRenderer content={lesson.explanation} />
                   </div>
                 </div>
 
-                {lesson.examples?.length > 0 && (
+                {!lesson.error && lesson.examples?.length > 0 && (
                   <div className="examples-section-v2">
                     <h4 className="section-label">Examples</h4>
                     <div className="examples-list-v2">
@@ -160,7 +190,7 @@ export default function CoursePage() {
                   </div>
                 )}
 
-                {lesson.quiz?.length > 0 && (
+                {!lesson.error && lesson.quiz?.length > 0 && (
                   <div className="quiz-cta-v2">
                     <button className="btn btn-primary btn-lg" onClick={() => setView('quiz')}>
                       Create Quiz & Test Knowledge

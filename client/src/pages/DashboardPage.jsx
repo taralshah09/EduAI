@@ -65,7 +65,7 @@ export default function DashboardPage() {
         ) : (
           <div className="courses-grid">
             {courses.map(course => (
-              <CourseCard key={course._id} course={course} />
+              <CourseCard key={course._id} course={course} onDelete={() => fetchCourses()} />
             ))}
           </div>
         )}
