@@ -2,13 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import Navbar from '../components/Navbar'
-import Breadcrumbs from '../components/Breadcrumbs'
 import QuizEngine from '../components/QuizEngine'
 import ChatWidget from '../components/ChatWidget'
 import MarkdownRenderer from '../components/MarkdownRenderer'
 import Loader from '../components/Loader'
 import Modal from '../components/Modal'
-import './CoursePage.css'
 
 export default function CoursePage() {
   const { id } = useParams()
@@ -41,29 +39,24 @@ export default function CoursePage() {
     fetchCourse()
   }, [fetchCourse])
 
-  // Poll while processing
   useEffect(() => {
     if (!course || course.status !== 'processing') return
     const interval = setInterval(fetchCourse, 5000)
     return () => clearInterval(interval)
   }, [course, fetchCourse])
 
-  // Remove the old redirect timer, we will use the modal instead
-  /*
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        navigate('/')
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, navigate])
-  */
-
-  if (loading) return <><Navbar /><Loader message="Loading your course..." /></>
+  if (loading) return <>
+    <Navbar />
+    <div className="flex-1 flex items-center justify-center p-20">
+      <div className="text-center space-y-6">
+        <div className="w-16 h-16 border-4 border-primary/20 border-t-[#d9f99d] rounded-full animate-spin mx-auto"></div>
+        <p className="text-lg font-bold uppercase tracking-widest text-gray-400">Loading Course...</p>
+      </div>
+    </div>
+  </>
 
   if (error) return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <Modal
         isOpen={showErrorModal}
@@ -72,159 +65,152 @@ export default function CoursePage() {
         onButtonClick={() => navigate('/')}
         buttonText="Back to Home"
       />
-      <div className="course-error">
-        <h2>⚠️ {error}</h2>
-        <p>Please click the button above to return home.</p>
-        <Link to="/" className="btn btn-secondary">← Back to Home</Link>
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-3xl border border-red-100 shadow-xl text-center">
+        <h2 className="text-2xl font-black text-red-500 mb-4 uppercase tracking-tighter">⚠️ {error}</h2>
+        <p className="text-gray-500 mb-8 font-medium">We encountered an issue while loading your course.</p>
+        <Link to="/" className="inline-block px-10 py-4 bg-[#111827] text-white rounded-full font-bold uppercase tracking-widest text-xs hover:bg-gray-800 transition-all">
+          Back to Home
+        </Link>
       </div>
     </div>
   )
 
   if (course.status === 'processing') return (
-    <><Navbar /><Loader message="Generating your course with AI..." /></>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center p-10">
+        <div className="max-w-md w-full bg-white p-12 rounded-[32px] shadow-2xl border border-white text-center space-y-8">
+           <div className="relative">
+              <div className="w-24 h-24 border-[6px] border-[#d9f99d]/20 border-t-[#d9f99d] rounded-full animate-spin mx-auto"></div>
+              <div className="absolute inset-0 flex items-center justify-center text-2xl">✨</div>
+           </div>
+           <div>
+              <h2 className="text-3xl font-black text-[#111827] tracking-tighter uppercase mb-2">Generating...</h2>
+              <p className="text-sm font-medium text-gray-400 leading-relaxed">Our AI is reading the transcript and building your curriculum. This usually takes 30-60 seconds.</p>
+           </div>
+           <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+             <div className="h-full bg-[#d9f99d] animate-[shimmer_2s_infinite_linear]" style={{ width: '60%' }}></div>
+           </div>
+        </div>
+      </div>
+    </div>
   )
 
   const lesson = course.lessons[activeLesson]
 
   return (
-    <div className="course-page">
+    <div className="bg-[#f4f4f5] text-[#18181b] min-h-screen flex flex-col font-sans overflow-hidden h-screen">
       <Navbar />
-
-      {course?.warningMessage && (
-        <div className="course-warning-banner">
-          ⚠️ {course.warningMessage}
-        </div>
-      )}
-
-      <div className="course-layout-v2">
-        {/* LEFT COLUMN: Navigation / Context */}
-        <aside className="col-left">
-          <div className="col-header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Breadcrumbs courseTitle={course.title} lessonTitle={lesson.title} />
-              <button 
-                className="btn-icon" 
-                onClick={async () => {
-                  if (window.confirm("Are you sure you want to delete this course?")) {
-                    try {
-                      await api.delete(`/courses/${course._id}`);
-                      navigate('/');
-                    } catch (e) {
-                      alert("Failed to delete course");
-                    }
-                  }
-                }}
-                title="Delete Course"
-                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0 4px', opacity: 0.7 }}
+      
+      <main className="flex-1 flex gap-4 p-4 overflow-hidden">
+        {/* Column 1: Curriculum */}
+        <section className="w-1/4 bg-white border border-zinc-200 rounded-[24px] flex flex-col overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-zinc-100">
+            <h2 className="font-display font-extrabold text-xl uppercase italic tracking-tight">Curriculum</h2>
+            <p className="text-[10px] font-bold text-zinc-400 uppercase mt-1 truncate">{course.title}</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200">
+            {course.lessons.map((l, i) => (
+              <div 
+                key={i}
+                onClick={() => { setActiveLesson(i); setView('lesson') }}
+                className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                  activeLesson === i 
+                  ? 'bg-[#d9f99d] border-black/5 shadow-sm' 
+                  : 'bg-zinc-50 border-transparent hover:border-zinc-200'
+                }`}
               >
-                🗑️
-              </button>
-            </div>
-            <h2 className="video-title">{lesson.title}</h2>
+                <span className={`text-[10px] font-black block mb-1 ${activeLesson === i ? 'opacity-50' : 'text-zinc-400'}`}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <p className={`font-bold text-sm ${activeLesson === i ? 'text-black' : 'text-zinc-600'}`}>{l.title}</p>
+              </div>
+            ))}
           </div>
-          
-          <div className="concepts-section">
-            <h4 className="section-label">Concepts Cards</h4>
-            <div className="concepts-scroll-area">
-              {lesson.concepts?.map((c, i) => (
-                <div key={i} className="concept-card">
-                  <span className="concept-card-icon">💡</span>
-                  <div className="concept-card-content">
-                    <h5>{c}</h5>
-                    <p>Key concept from this lesson</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="p-4 border-t border-zinc-100">
+            <button 
+              onClick={async () => {
+                if (window.confirm("Delete this course?")) {
+                  await api.delete(`/courses/${id}`);
+                  navigate('/');
+                }
+              }}
+              className="w-full py-3 text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-500 hover:bg-red-50 transition-all rounded-xl"
+            >
+              Delete Course
+            </button>
           </div>
+        </section>
 
-          <div className="sidebar-footer">
-            <nav className="mini-lesson-nav">
-              {course.lessons.map((l, i) => (
-                <button
-                  key={i}
-                  className={`mini-nav-item ${activeLesson === i ? 'active' : ''}`}
-                  onClick={() => { setActiveLesson(i); setView('lesson') }}
-                  title={l.title}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* MIDDLE COLUMN: Lesson Content */}
-        <main className="col-middle">
-          <div className="col-header">
-            <span className="lesson-num-badge">Lesson {activeLesson + 1}</span>
-            <h1 className="lesson-title-v2">{lesson.title}</h1>
-          </div>
-
-          <div className="col-middle-scroll">
+        {/* Column 2: Content Area */}
+        <section className="flex-1 bg-white border border-zinc-200 rounded-[24px] flex flex-col overflow-hidden relative shadow-sm">
+          <div className="flex-1 overflow-y-auto p-8 pb-32 scrollbar-thin scrollbar-thumb-zinc-200">
             {view === 'lesson' ? (
-              <div className="lesson-content-v2">
-                <div className="scrollable-concept-content">
-                  {lesson.error && (
-                    <div className="course-warning-banner" style={{ background: 'var(--bg-card)', color: '#ff4444', border: '1px solid #ff4444', marginBottom: '20px' }}>
-                      ❌ <strong>Error loading lesson:</strong> {lesson.error}
-                    </div>
-                  )}
-                  <h4 className="section-label">Concept Content</h4>
-                  <div className="explanation-text">
-                    <MarkdownRenderer content={lesson.explanation} />
+              <div className="space-y-8 animate-in fade-in duration-500">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="px-3 py-1 bg-[#d9f99d] text-[#18181b] text-[10px] font-black rounded-full uppercase tracking-tighter">Lesson {activeLesson + 1}</span>
+                    {course.lessons[activeLesson].quiz?.length > 0 && (
+                      <span className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Quiz Available</span>
+                    )}
                   </div>
+                  <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tighter uppercase leading-none text-[#18181b]">
+                    {lesson.title}
+                  </h1>
                 </div>
 
-                {!lesson.error && lesson.examples?.length > 0 && (
-                  <div className="examples-section-v2">
-                    <h4 className="section-label">Examples</h4>
-                    <div className="examples-list-v2">
+                <div className="space-y-6 text-[#18181b] font-medium text-lg leading-relaxed prose prose-zinc max-w-none prose-headings:text-[#18181b] prose-headings:font-black prose-headings:tracking-tighter prose-headings:uppercase prose-p:text-zinc-600">
+                  <MarkdownRenderer content={lesson.explanation} />
+                </div>
+
+                {lesson.examples?.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-display font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Concept Examples</h4>
+                    <div className="grid gap-4">
                       {lesson.examples.map((ex, i) => (
-                        <div key={i} className="example-card">
-                          <span className="example-badge">{i + 1}</span>
-                          <p>{ex}</p>
+                        <div key={i} className="p-6 bg-zinc-50 border border-zinc-100 rounded-3xl flex items-start gap-4">
+                          <span className="w-8 h-8 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-xs font-black shrink-0 shadow-sm">{i + 1}</span>
+                          <p className="text-zinc-600 font-medium">{ex}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {!lesson.error && lesson.quiz?.length > 0 && (
-                  <div className="quiz-cta-v2">
-                    <button className="btn btn-primary btn-lg" onClick={() => setView('quiz')}>
-                      Create Quiz & Test Knowledge
-                    </button>
-                  </div>
-                )}
               </div>
             ) : (
+              <div className="h-full">
+                <QuizEngine
+                  quiz={lesson.quiz}
+                  courseId={id}
+                  lessonIndex={activeLesson}
+                  lessonTitle={lesson.title}
+                  onBack={() => setView('lesson')}
+                />
+              </div>
+            )}
+          </div>
 
-            <div className="quiz-container-v2">
-              <QuizEngine
-                quiz={lesson.quiz}
-                courseId={id}
-                lessonIndex={activeLesson}
-                lessonTitle={lesson.title}
-                onBack={() => setView('lesson')}
-              />
+          {/* Fixed Footer Bar */}
+          {view === 'lesson' && lesson.quiz?.length > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/95 to-transparent backdrop-blur-sm">
+              <button 
+                onClick={() => setView('quiz')}
+                className="w-full py-5 bg-[#18181b] text-[#d9f99d] font-black uppercase text-sm tracking-[0.2em] rounded-2xl hover:brightness-110 transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-[0.98]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></path>
+                </svg>
+                Create Knowledge Quiz
+              </button>
             </div>
           )}
-          </div>
-        </main>
+        </section>
 
-
-        {/* RIGHT COLUMN: AI Tutor */}
-        <aside className="col-right">
-          <div className="col-header">
-            <h4 className="ai-tutor-title">AI Tutor – Assignment Help</h4>
-          </div>
-          
-          <div className="chat-scroll-container">
-            <ChatWidget courseId={id} />
-          </div>
-        </aside>
-      </div>
+        {/* Column 3: AI Chat Interface */}
+        <section className="w-1/3 bg-[#18181b] border border-white/10 rounded-[24px] overflow-hidden shadow-2xl flex flex-col">
+          <ChatWidget courseId={id} />
+        </section>
+      </main>
     </div>
   )
 }
