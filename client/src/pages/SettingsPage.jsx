@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../services/api';
 import { Link } from 'react-router-dom';
 import './DashboardPage.css'; // Reusing some dashboard styles for consistency
 
@@ -23,10 +23,9 @@ const SettingsPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const { data } = await axios.put(
-        'http://localhost:3000/api/auth/api-keys',
-        { gemini: geminiKey },
-        { withCredentials: true }
+      const { data } = await api.put(
+        '/auth/api-keys',
+        { gemini: geminiKey }
       );
       setMessage({ type: 'success', text: data.message });
       setIsSet(!!data.apiKeys.gemini);
@@ -45,10 +44,9 @@ const SettingsPage = () => {
   const handleRemove = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.put(
-        'http://localhost:3000/api/auth/api-keys',
-        { gemini: '' },
-        { withCredentials: true }
+      const { data } = await api.put(
+        '/auth/api-keys',
+        { gemini: '' }
       );
       setMessage({ type: 'success', text: 'API key removed successfully' });
       setIsSet(false);

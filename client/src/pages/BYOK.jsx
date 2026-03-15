@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../services/api';
 import Navbar from '../components/Navbar';
 
 const PROVIDERS = [
@@ -53,10 +53,9 @@ const BYOK = () => {
 
     try {
       const payload = { [activeProvider]: apiKeys[activeProvider].trim() };
-      const { data } = await axios.put(
-        'http://localhost:3000/api/auth/api-keys',
-        payload,
-        { withCredentials: true }
+      const { data } = await api.put(
+        '/auth/api-keys',
+        payload
       );
       setMessage({ type: 'success', text: `${PROVIDERS.find(p => p.id === activeProvider).name} key updated successfully!` });
       setApiKeys(prev => ({ ...prev, [activeProvider]: '' }));
@@ -75,10 +74,9 @@ const BYOK = () => {
     setLoading(true);
     try {
       const payload = { [activeProvider]: '' };
-      const { data } = await axios.put(
-        'http://localhost:3000/api/auth/api-keys',
-        payload,
-        { withCredentials: true }
+      const { data } = await api.put(
+        '/auth/api-keys',
+        payload
       );
       setMessage({ type: 'success', text: `${PROVIDERS.find(p => p.id === activeProvider).name} key removed.` });
       updateUser(data.apiKeys);
