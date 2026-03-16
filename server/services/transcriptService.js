@@ -65,11 +65,22 @@ async function fetchTranscriptTracks(tracks, videoId, lang) {
     const available = tracks.map((t) => t.languageCode).join(", ");
     throw new Error(`No transcript in "${lang}". Available: ${available}`);
   }
-  const res = await fetch(track.baseUrl, { 
+
+  console.log("[transcript] Fetching XML from:", track.baseUrl.slice(0, 80) + "...");
+
+  const res = await fetch(track.baseUrl, {
     headers: { "User-Agent": USER_AGENT },
-    dispatcher: proxyDispatcher
+    dispatcher: proxyDispatcher,
   });
-  if (!res.ok) throw new Error(`Failed to fetch transcript XML for ${videoId}`);
+
+  // Add this ↓
+  if (!res.ok) {
+    const body = await res.text();
+    console.error(`[transcript] XML fetch failed — status: ${res.status}`);
+    console.error(`[transcript] Response body: ${body.slice(0, 300)}`);
+    throw new Error(`Failed to fetch transcript XML for ${videoId}`);
+  }
+
   return parseTranscriptXml(await res.text(), lang ?? tracks[0].languageCode);
 }
 
