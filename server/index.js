@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 
 
 // Controllers
@@ -16,6 +17,7 @@ import {
 import { chat, getChatHistory } from "./controllers/chatController.js";
 import { submitQuiz } from "./controllers/quizController.js";
 import {
+  sendSignupOTP,
   registerUser,
   authUser,
   getUserProfile,
@@ -44,10 +46,18 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
+// Rate Limiter for OTP requests
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 OTP requests per window
+  message: "Too many OTP requests from this IP, please try again after 15 minutes",
+});
+
 // Routes
 app.get("/", (req, res) => res.json({ message: "TL;DR API 🚀" }));
 
 // Auth
+app.post("/api/auth/send-otp", otpLimiter, sendSignupOTP);
 app.post("/api/auth/register", registerUser);
 app.post("/api/auth/login", authUser);
 app.post("/api/auth/logout", logoutUser);

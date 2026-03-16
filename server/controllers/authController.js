@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import OTP from "../models/OTP.js";
+import sendOTPEmail from "../services/emailService.js";
+import crypto from "crypto";
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -7,12 +10,40 @@ const generateToken = (id) => {
   });
 };
 
-export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+export const sendSignupOTP = async (req, res) => {
+  const { email } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
+    const otp = crypto.randomInt(100000, 999999).toString();
+    
+    // Check if OTP already exists for this email and delete it
+    await OTP.deleteOne({ email });
+
+    await OTP.create({ email, otp });
+    await sendOTPEmail(email, otp);
+
+    res.status(200).json({ message: "OTP sent successfully to your email" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const registerUser = async (req, res) => {
+  const { name, email, password, otp } = req.body;
+
+  try {
+    const otpRecord = await OTP.findOne({ email, otp });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -24,9 +55,12 @@ export const registerUser = async (req, res) => {
     });
 
     if (user) {
+      // Delete OTP after successful verification
+      await OTP.deleteOne({ email });
+
       const token = generateToken(user._id);
       const cookieOptions = {
-        httpOnly: false, // email and name should be accessible by JS if needed, but token MUST be httpOnly
+        httpOnly: false,
         secure: true,
         sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000,
