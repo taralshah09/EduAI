@@ -1,24 +1,22 @@
 import nodemailer from "nodemailer";
 import dns from "dns";
 
-// Force IPv4 as some environments (like Render) may have issues with IPv6 SMTP connections
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
+// FIX 3: Must be called at the very top of this module, before any DNS resolution
+dns.setDefaultResultOrder("ipv4first");
 
 const sendOTPEmail = async (email, otp) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+      host: process.env.SMTP_HOST || "smtp4.gmail.com", // FIX 1: Use Gmail's IPv4-only hostname
       port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+      secure: Number(process.env.SMTP_PORT) === 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      // Strictly force IPv4 to avoid ENETUNREACH issues with IPv6
+      // FIX 2: Added `all: false` to ensure only a single IPv4 address is returned
       lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
+        dns.lookup(hostname, { family: 4, all: false }, callback);
       },
     });
 
