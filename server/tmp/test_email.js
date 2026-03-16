@@ -2,7 +2,7 @@ import "dotenv/config";
 import sendOTPEmail from "../services/emailService.js";
 
 async function test() {
-  const testEmail = "hitmeup.taral@gmail.com"; // Testing with the sender email itself as a safe bet
+  const testEmail = "immortaltaral.chess@gmail.com"; // Testing with the sender email itself as a safe bet
   const testOtp = "123456";
 
   console.log(`Starting email test to ${testEmail}...`);
