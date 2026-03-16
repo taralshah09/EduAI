@@ -1,4 +1,10 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
+
+// Force IPv4 as some environments (like Render) may have issues with IPv6 SMTP connections
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const sendOTPEmail = async (email, otp) => {
   try {
@@ -10,6 +16,8 @@ const sendOTPEmail = async (email, otp) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // Force IPv4 to avoid ENETUNREACH issues with IPv6
+      family: 4,
     });
 
     const mailOptions = {
