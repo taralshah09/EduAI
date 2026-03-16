@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { FaGithub } from 'react-icons/fa'
 
 export default function Navbar() {
   const { pathname } = useLocation()
@@ -47,6 +48,15 @@ export default function Navbar() {
             className="transition-colors hover:text-[#111827]"
           >
             Builder
+          </a>
+          <a
+            href="https://github.com/taralshah09/TL-DR"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-xs font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-sm"
+          >
+            <FaGithub className="w-4 h-4" />
+            <span>STAR ON GITHUB</span>
           </a>
         </nav>
 
@@ -144,7 +154,17 @@ export default function Navbar() {
             >
               Builder
             </a>
-          </nav>
+            <a
+              href="https://github.com/taralshah09/TL-DR"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center gap-3 px-6 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-gray-800 transition-all"
+            >
+              <FaGithub className="w-5 h-5" />
+              <span>STAR ON GITHUB</span>
+            </a>
+        </nav>
 
           <div className="pt-6 border-t border-gray-100 sm:hidden">
             {user ? (
