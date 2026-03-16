@@ -30,7 +30,7 @@ export default {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          from: "TL;DR <onboarding@resend.dev>", // Replace with verified Resend domain when ready
+          from: "TL;DR <onboarding@dotldr.app>", // Replace with verified Resend domain when ready
           to: [email],
           subject: "OTP Verification",
           html: `
