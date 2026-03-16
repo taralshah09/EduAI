@@ -11,7 +11,11 @@ const generateToken = (id) => {
 };
 
 export const sendSignupOTP = async (req, res) => {
-  const { email } = req.body;
+  const email = req.body.email?.toLowerCase();
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
 
   try {
     const userExists = await User.findOne({ email });
@@ -34,17 +38,20 @@ export const sendSignupOTP = async (req, res) => {
 };
 
 export const registerUser = async (req, res) => {
-  const { name, email, password, otp } = req.body;
+  const { name, password, otp } = req.body;
+  const email = req.body.email?.toLowerCase();
 
   try {
     const otpRecord = await OTP.findOne({ email, otp });
 
     if (!otpRecord) {
+      console.log(`Registration failed: Invalid OTP for ${email}`);
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
+      console.log(`Registration failed: User already exists - ${email}`);
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -80,15 +87,18 @@ export const registerUser = async (req, res) => {
         openrouter: user.openrouter,
       });
     } else {
+      console.log(`Registration failed: User creation failed for ${email}`);
       res.status(400).json({ message: "Invalid user data" });
     }
   } catch (error) {
+    console.error(`Registration error for ${email}:`, error);
     res.status(500).json({ message: error.message });
   }
 };
 
 export const authUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = req.body.email?.toLowerCase();
 
   try {
     const user = await User.findOne({ email });
