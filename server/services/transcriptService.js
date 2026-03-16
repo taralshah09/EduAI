@@ -2,6 +2,8 @@ const PLAYER_URL = "https://www.youtube.com/youtubei/v1/player?prettyPrint=false
 const CLIENT_VERSION = "20.10.38";
 const USER_AGENT = `com.google.android.youtube/${CLIENT_VERSION} (Linux; U; Android 14)`;
 
+import { proxyDispatcher } from "../utils/proxy.js";
+
 const VIDEO_ID_REGEX =
   /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i;
 
@@ -63,7 +65,10 @@ async function fetchTranscriptTracks(tracks, videoId, lang) {
     const available = tracks.map((t) => t.languageCode).join(", ");
     throw new Error(`No transcript in "${lang}". Available: ${available}`);
   }
-  const res = await fetch(track.baseUrl, { headers: { "User-Agent": USER_AGENT } });
+  const res = await fetch(track.baseUrl, { 
+    headers: { "User-Agent": USER_AGENT },
+    dispatcher: proxyDispatcher
+  });
   if (!res.ok) throw new Error(`Failed to fetch transcript XML for ${videoId}`);
   return parseTranscriptXml(await res.text(), lang ?? tracks[0].languageCode);
 }
@@ -81,6 +86,7 @@ export async function fetchTranscript(urlOrId, { lang } = {}) {
         context: { client: { clientName: "ANDROID", clientVersion: CLIENT_VERSION } },
         videoId,
       }),
+      dispatcher: proxyDispatcher
     });
     if (res.ok) {
       const data = await res.json();
@@ -104,6 +110,7 @@ export async function fetchTranscript(urlOrId, { lang } = {}) {
       "User-Agent":
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 Chrome/85.0.4183.83 Safari/537.36,gzip(gfe)",
     },
+    dispatcher: proxyDispatcher
   });
   const html = await page.text();
   if (html.includes(`class="g-recaptcha"`)) throw new Error("YouTube is rate-limiting this IP");

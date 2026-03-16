@@ -4,6 +4,8 @@
  * Multiple free-tier models available (no credit needed for some)
  */
 
+import { proxyDispatcher } from "../../utils/proxy.js";
+
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 /**
@@ -31,6 +33,7 @@ export async function call(prompt, model, signal, apiKey) {
       temperature: 0.3,
       max_tokens: 4096,
     }),
+    dispatcher: proxyDispatcher,
     signal,
   });
 

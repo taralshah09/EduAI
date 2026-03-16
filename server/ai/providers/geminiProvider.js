@@ -5,33 +5,21 @@
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { proxyDispatcher } from "../../utils/proxy.js";
 
 // Ordered list of Gemini models to try (newest, most capable first)
-const GEMINI_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-2.5-flash",
-  "gemini-flash-latest",
-  "gemini-2.0-flash-lite",
-];
+// ... (rest of the code)
 
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 2000;
-
-/**
- * Calls Gemini API with model rotation and exponential backoff.
- * @param {string} prompt
- * @param {string} _model  — ignored (model list is managed internally)
- * @param {AbortSignal} signal
- * @param {string|null} userApiKey
- * @param {Function|null} onUserKeyFailure
- * @returns {Promise<{ text: string }>}
- */
 export async function call(prompt, _model, signal, apiKey) {
   if (!apiKey) {
     throw Object.assign(new Error("No Gemini API key available"), { code: "NO_KEY" });
   }
 
-  const activeGenAI = new GoogleGenerativeAI(apiKey);
+  const activeGenAI = new GoogleGenerativeAI(apiKey, {
+    requestOptions: {
+      dispatcher: proxyDispatcher
+    }
+  });
   let lastError;
 
   for (const modelName of GEMINI_MODELS) {

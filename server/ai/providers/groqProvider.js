@@ -4,6 +4,8 @@
  * Free tier: generous rate limits on LLaMA-3 models
  */
 
+import { proxyDispatcher } from "../../utils/proxy.js";
+
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 /**
@@ -29,6 +31,7 @@ export async function call(prompt, model, signal, apiKey) {
       temperature: 0.3,
       max_tokens: 4096,
     }),
+    dispatcher: proxyDispatcher,
     signal,
   });
 

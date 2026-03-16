@@ -5,6 +5,7 @@
  */
 
 import { getSystemKeysForProvider } from "../../utils/apiKeys.js";
+import { proxyDispatcher } from "../../utils/proxy.js";
 
 const TOGETHER_CHAT_URL = "https://api.together.xyz/v1/chat/completions";
 const TOGETHER_EMBED_URL = "https://api.together.xyz/v1/embeddings";
@@ -31,6 +32,7 @@ export async function call(prompt, model, signal, apiKey) {
       temperature: 0.3,
       max_tokens: 4096,
     }),
+    dispatcher: proxyDispatcher,
     signal,
   });
 
@@ -76,6 +78,7 @@ export async function embed(text) {
           model: "BAAI/bge-large-en-v1.5",
           input: text.slice(0, 8000), // model context limit
         }),
+        dispatcher: proxyDispatcher,
       });
 
       if (!res.ok) {
