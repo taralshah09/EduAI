@@ -53,6 +53,7 @@ export default function LandingPage() {
                       with
                     </span>
                     <span className="text-dark">TL<span className="text-primary">;</span>DR</span>
+                    <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black rounded-md tracking-widest uppercase">Beta</span>
                   </div>
                 </h1>
                 <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-lg mt-4">
@@ -93,6 +94,10 @@ export default function LandingPage() {
                   </svg>
                 </button>
               </form>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] ml-6 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                Free Tier: 4 requests max per user during Beta
+              </p>
             </div>
             {/* Right Side: Promo Card + Powered By stacked */}
             <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 lg:min-h-full">

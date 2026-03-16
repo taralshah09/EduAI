@@ -7,6 +7,24 @@ export async function generateCourse(req, res) {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: "YouTube URL is required" });
 
+    // 1. Check if user exceeded limit
+    if (req.user.transcriptCount >= 4) {
+      return res.status(403).json({ 
+        error: "You have reached the limit of 4 course generations during this beta." 
+      });
+    }
+
+    // 2. Check if course already exists to avoid penalizing count for existing content
+    // (Optional but fair)
+    const videoId = url.includes("v=") ? url.split("v=")[1].split("&")[0] : url.split("/").pop(); // Simple extraction for check
+    const existing = await Course.findOne({ courseKey: req.user._id + videoId });
+    
+    if (!existing) {
+      // Increment count ONLY for new generations
+      req.user.transcriptCount += 1;
+      await req.user.save();
+    }
+
     const course = await buildCourse(url, req.user._id, req.user);
     res.status(200).json({ course });
   } catch (err) {

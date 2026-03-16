@@ -1,9 +1,3 @@
-const PLAYER_URL = "https://www.youtube.com/youtubei/v1/player?prettyPrint=false";
-const CLIENT_VERSION = "20.10.38";
-const USER_AGENT = `com.google.android.youtube/${CLIENT_VERSION} (Linux; U; Android 14)`;
-
-import { proxyDispatcher } from "../utils/proxy.js";
-
 const VIDEO_ID_REGEX =
   /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i;
 
@@ -14,141 +8,52 @@ function extractVideoId(input) {
   throw new Error("Could not extract YouTube video ID");
 }
 
-function decodeEntities(str) {
-  return str
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)));
-}
-
-function parseTranscriptXml(xml, lang) {
-  const results = [];
-  const tagRe = /<p\s+t="(\d+)"\s+d="(\d+)"[^>]*>([\s\S]*?)<\/p>/g;
-  const legacyRe = /<text start="([^"]*)" dur="([^"]*)">([^<]*)<\/text>/g;
-  let m;
-
-  // Try the newer <p> format first
-  while ((m = tagRe.exec(xml)) !== null) {
-    const offset = parseInt(m[1], 10);
-    const duration = parseInt(m[2], 10);
-    let text = "";
-    const wordRe = /<s[^>]*>([^<]*)<\/s>/g;
-    let w;
-    while ((w = wordRe.exec(m[3])) !== null) text += w[1];
-    if (!text) text = m[3].replace(/<[^>]+>/g, "");
-    text = decodeEntities(text).trim();
-    if (text) results.push({ text, offset, duration, lang });
-  }
-
-  if (results.length > 0) return results;
-
-  // Fall back to legacy <text> format
-  while ((m = legacyRe.exec(xml)) !== null) {
-    results.push({
-      text: decodeEntities(m[3]),
-      offset: parseFloat(m[1]),
-      duration: parseFloat(m[2]),
-      lang,
-    });
-  }
-  return results;
-}
-
-async function fetchTranscriptTracks(tracks, videoId, lang) {
-  const track = lang ? tracks.find((t) => t.languageCode === lang) : tracks[0];
-  if (!track) {
-    const available = tracks.map((t) => t.languageCode).join(", ");
-    throw new Error(`No transcript in "${lang}". Available: ${available}`);
-  }
-
-  console.log("[transcript] Fetching XML from:", track.baseUrl.slice(0, 80) + "...");
-
-  const res = await fetch(track.baseUrl, {
-    headers: { "User-Agent": USER_AGENT },
-    dispatcher: proxyDispatcher,
-  });
-
-  // Add this ↓
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`[transcript] XML fetch failed — status: ${res.status}`);
-    console.error(`[transcript] Response body: ${body.slice(0, 300)}`);
-    throw new Error(`Failed to fetch transcript XML for ${videoId}`);
-  }
-
-  return parseTranscriptXml(await res.text(), lang ?? tracks[0].languageCode);
-}
-
 export async function fetchTranscript(urlOrId, { lang } = {}) {
   const videoId = extractVideoId(urlOrId);
-  let metadata = { duration: 0, title: "" };
+  const keys = [
+    process.env.SUPADATA_API_KEY_1,
+    process.env.SUPADATA_API_KEY_2,
+    process.env.SUPADATA_API_KEY_3,
+    process.env.SUPADATA_API_KEY_4,
+    process.env.SUPADATA_API_KEY_5,
+    process.env.SUPADATA_API_KEY_6,
+    process.env.SUPADATA_API_KEY_7,
+    process.env.SUPADATA_API_KEY_8,
+  ].filter(Boolean);
 
-  // Try the InnerTube API first (no HTML parsing, more reliable)
-  try {
-    const res = await fetch(PLAYER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": USER_AGENT },
-      body: JSON.stringify({
-        context: { client: { clientName: "ANDROID", clientVersion: CLIENT_VERSION } },
-        videoId,
-      }),
-      dispatcher: proxyDispatcher
-    });
-    if (res.ok) {
-      const data = await res.json();
-      metadata.duration = parseInt(data?.videoDetails?.lengthSeconds || 0, 10);
-      metadata.title = data?.videoDetails?.title || "";
+  if (keys.length === 0) throw new Error("No Supadata API keys configured");
 
-      const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-      if (Array.isArray(tracks) && tracks.length > 0) {
-        const items = await fetchTranscriptTracks(tracks, videoId, lang);
-        return { items, metadata };
+  let lastError;
+  for (const key of keys) {
+    try {
+      const res = await fetch(`https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&lang=${lang ?? "en"}`, {
+        headers: { "x-api-key": key }
+      });
+
+      if (res.status === 401 || res.status === 403 || res.status === 429) {
+         console.warn(`Supadata key failed with status ${res.status}, trying next...`);
+         continue;
       }
+
+      if (!res.ok) throw new Error(`Supadata error: ${res.status}`);
+      
+      const data = await res.json();
+      return {
+        items: data.content.map(c => ({
+          text: c.text,
+          offset: c.offset,
+          duration: c.duration,
+          lang: data.lang
+        })),
+        metadata: { title: data.title ?? "", duration: data.duration ?? 0 }
+      };
+    } catch (err) {
+      lastError = err;
+      console.error(`Supadata attempt failed: ${err.message}`);
     }
-  } catch (err) {
-    console.error("InnerTube fetch error:", err.message);
   }
 
-  // Fallback: scrape the watch page
-  const page = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: {
-      ...(lang && { "Accept-Language": lang }),
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 Chrome/85.0.4183.83 Safari/537.36,gzip(gfe)",
-    },
-    dispatcher: proxyDispatcher
-  });
-  const html = await page.text();
-  if (html.includes(`class="g-recaptcha"`)) throw new Error("YouTube is rate-limiting this IP");
-  if (!html.includes(`"playabilityStatus":`)) throw new Error(`Video unavailable: ${videoId}`);
-
-  const match = html.match(/var ytInitialPlayerResponse\s*=\s*(\{)/);
-  if (!match) throw new Error(`Could not parse player response for ${videoId}`);
-
-  // Balanced brace extraction
-  const start = html.indexOf(match[0]) + match[0].length - 1;
-  let depth = 0,
-    end = start;
-  for (; end < html.length; end++) {
-    if (html[end] === "{") depth++;
-    else if (html[end] === "}" && --depth === 0) break;
-  }
-  const playerData = JSON.parse(html.slice(start, end + 1));
-
-  metadata.duration = parseInt(playerData?.videoDetails?.lengthSeconds || 0, 10);
-  metadata.title = playerData?.videoDetails?.title || "";
-
-  const tracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-  if (!Array.isArray(tracks) || tracks.length === 0) {
-    throw new Error(`Transcripts disabled or unavailable for ${videoId}`);
-  }
-  const items = await fetchTranscriptTracks(tracks, videoId, lang);
-  return { items, metadata };
+  throw lastError || new Error("All Supadata API keys failed");
 }
 
 // ── Helpers (same API as before) ────────────────────────────────────────────

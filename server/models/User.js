@@ -14,7 +14,8 @@ const UserSchema = new mongoose.Schema(
     },
     openrouter: {
       apiKey: { type: String, default: "" }
-    }
+    },
+    transcriptCount: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

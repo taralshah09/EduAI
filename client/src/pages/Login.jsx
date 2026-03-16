@@ -1,21 +1,27 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { CgSpinner } from "react-icons/cg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
     try {
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,9 +46,10 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
               required
               placeholder="name@company.com"
-              className="w-full bg-gray-50 rounded-2xl px-5 py-4 border border-gray-200 focus:bg-white focus:border-primary focus:ring-0 transition-all text-sm font-medium outline-none"
+              className="w-full bg-gray-50 rounded-2xl px-5 py-4 border border-gray-200 focus:bg-white focus:border-primary focus:ring-0 transition-all text-sm font-medium outline-none disabled:opacity-50"
             />
           </div>
           <div>
@@ -51,13 +58,25 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               required
               placeholder="••••••••"
-              className="w-full bg-gray-50 rounded-2xl px-5 py-4 border border-gray-200 focus:bg-white focus:border-primary focus:ring-0 transition-all text-sm font-medium outline-none"
+              className="w-full bg-gray-50 rounded-2xl px-5 py-4 border border-gray-200 focus:bg-white focus:border-primary focus:ring-0 transition-all text-sm font-medium outline-none disabled:opacity-50"
             />
           </div>
-          <button type="submit" className="bg-primary text-dark font-black px-8 py-4 rounded-full uppercase tracking-tighter text-lg hover:brightness-105 transition-all flex items-center justify-center gap-2 group w-full shadow-md mt-6">
-            Log In
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="bg-primary text-dark font-black px-8 py-4 rounded-full uppercase tracking-tighter text-lg hover:brightness-105 transition-all flex items-center justify-center gap-2 group w-full shadow-md mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <CgSpinner className="w-6 h-6 animate-spin" />
+                Logging In...
+              </>
+            ) : (
+              "Log In"
+            )}
           </button>
         </form>
         
